@@ -6,6 +6,7 @@
 <title>Огляд · APX CLIENT</title>
 <meta name="description" content="Відео-огляд APX CLIENT — інтерфейс, модулі та можливості клієнта.">
 <link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
 <style>
   .review-body{display:flex;flex-direction:column;gap:22px;}
   .review-meta{
@@ -36,7 +37,7 @@
 </svg>
 
 <!-- ================= background ================= -->
-<div class="bg" aria-hidden="true">
+<div class="bg" id="bg" aria-hidden="true">
   <canvas class="stars" id="stars"></canvas>
   <canvas class="shards" id="shards"></canvas>
   <div class="orb orb-a"></div>
@@ -72,6 +73,7 @@
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
         Telegram
       </a>
+      <span id="themeSlot" data-theme-slot></span>
       <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
@@ -81,6 +83,10 @@
       <a href="index.html#modules">Модулі</a>
       <a href="index.html#pricing">Тарифи</a>
       <a href="index.html">Головна</a>
+      <div class="mobile-theme">
+        <span>Тема оформлення</span>
+        <span id="themeSlotMobile" data-theme-slot></span>
+      </div>
       <a class="btn btn-primary" href="https://t.me/yourchannel" target="_blank" rel="noopener">Telegram</a>
     </div>
   </div>
@@ -154,6 +160,7 @@
 </footer>
 
 <script src="shards.js"></script>
+<script src="decor.js"></script>
 <script>
 (function(){
   "use strict";
