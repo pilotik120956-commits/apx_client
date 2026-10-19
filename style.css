@@ -422,11 +422,11 @@ button{background:none;border:0;cursor:pointer;}
 }
 .intro-chip .sicon{color:var(--accent-bright);}
 .intro.is-releasing .intro-chip{
-  animation:chipFly 1.15s cubic-bezier(.14,.86,.24,1) forwards;
+  animation:chipFly 1.9s cubic-bezier(.16,.86,.26,1) forwards;
 }
 @keyframes chipFly{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.35);filter:blur(10px);}
-  22%{opacity:1;filter:blur(0);}
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55);filter:blur(14px);}
+  30%{opacity:1;filter:blur(0);}
   100%{opacity:1;transform:translate(calc(-50% + var(--dx,0px)), calc(-50% + var(--dy,0px))) scale(1);}
 }
 
@@ -523,11 +523,25 @@ body.is-arriving{animation:emergedFromHole .78s cubic-bezier(.16,.84,.24,1) both
 /* elements that emerge from the hole */
 .intro-item{opacity:0;transform:translateY(14px) scale(.94);}
 html.intro-play .intro-item{
-  animation:emerge .82s cubic-bezier(.16,.84,.24,1) forwards;
+  animation:emerge 1.15s cubic-bezier(.16,.86,.24,1) forwards;
 }
 @keyframes emerge{
-  from{opacity:0;transform:translateY(24px) scale(.9);filter:blur(8px);}
+  from{opacity:0;transform:translateY(20px) scale(.95);filter:blur(7px);}
   to{opacity:1;transform:none;filter:blur(0);}
+}
+
+/* the top bar stays hidden until the intro has fully finished */
+html.intro-lock .nav-wrap{opacity:0;pointer-events:none;}
+html.intro-lock .nav-wrap,
+html.intro-play:not(.intro-ready) .nav-wrap{
+  opacity:0;pointer-events:none;
+}
+html.intro-ready .nav-wrap{
+  animation:navDrop 1.1s cubic-bezier(.16,.84,.24,1) forwards;
+}
+@keyframes navDrop{
+  from{opacity:0;transform:translateY(-18px);}
+  to{opacity:1;transform:none;}
 }
 
 /* burst particles flying out of the hole */

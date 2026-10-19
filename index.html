@@ -146,24 +146,24 @@
 <div class="nav-wrap">
   <div class="nav-shell">
     <nav class="nav glass" id="nav">
-      <a class="brand intro-item" style="--io:1" href="#top" aria-label="APX CLIENT — на початок">
+      <a class="brand" href="#top" aria-label="APX CLIENT — на початок">
         <span class="brand-mark">A</span>
         <span class="brand-name">APX <em>CLIENT</em></span>
       </a>
-      <div class="nav-links intro-item" style="--io:2">
+      <div class="nav-links">
         <a href="#features">Можливості</a>
         <a href="#modules">Модулі</a>
         <a href="#pricing">Тарифи</a>
         <a href="review.html">Огляд</a>
       </div>
-      <a class="btn btn-primary nav-cta intro-item" style="--io:3" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+      <a class="btn btn-primary nav-cta" href="https://t.me/yourchannel" target="_blank" rel="noopener">
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
         Telegram
       </a>
-      <button class="sound-toggle intro-item" style="--io:4" id="soundToggle" type="button" aria-pressed="true" aria-label="Вимкнути звук">
+      <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Вимкнути звук">
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-sound"/></svg>
       </button>
-      <button class="burger intro-item" style="--io:5" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
     </nav>
@@ -1262,23 +1262,86 @@
     try { alreadyPlayed = sessionStorage.getItem('apx_intro') === '1'; } catch (e) {}
 
     const chips = $$('.intro-chip');
-    const FALLBACK = [[-170,-96],[-6,-146],[158,-104],[-196,-8],[186,-6],[-158,88],[-4,132],[150,92],[-190,150],[188,146]];
+    // hint directions — used only as a starting guess; real placement is
+    // collision-aware so no two chips ever touch.
+    const FALLBACK = [[-1,-0.72],[-0.34,-1],[0.42,-0.94],[-1,-0.28],[1,-0.22],[-1,0.3],[1,0.34],[-0.86,0.86],[0.28,1],[0.9,0.82]];
 
     function layoutChips() {
-      const R = Math.min(window.innerWidth, window.innerHeight) * 0.3;
-      chips.forEach((chip, i) => {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      // keep everything well inside the viewport, clear of the centre hole
+      const maxR = Math.min(vw, vh) * 0.42;
+      const R = Math.min(vw, vh) * 0.29;
+
+      // 1) measure every chip's real box first
+      const items = chips.map((chip, i) => {
+        chip.style.animationDelay = '';
+        const w = chip.offsetWidth || 150;
+        const h = chip.offsetHeight || 42;
         const base = FALLBACK[i % FALLBACK.length];
         const len = Math.hypot(base[0], base[1]) || 1;
-        const dx = base[0] / len * R;
-        const dy = base[1] / len * R;
-        chip.style.setProperty('--dx', dx.toFixed(1) + 'px');
-        chip.style.setProperty('--dy', dy.toFixed(1) + 'px');
-        chip.style.animationDelay = (i * 150) + 'ms';
+        return {
+          chip, i, w, h,
+          // desired direction, normalised
+          dx: base[0] / len,
+          dy: base[1] / len,
+          // start on the ring
+          x: (base[0] / len) * R,
+          y: (base[1] / len) * R,
+        };
       });
+
+      // 2) relax the positions so no two boxes overlap
+      //    (simple iterative separation — cheap and stable for 10 items)
+      const PAD = 16;   // minimum clear gap between chips
+      for (let pass = 0; pass < 90; pass++) {
+        let moved = false;
+        for (let a = 0; a < items.length; a++) {
+          for (let b = a + 1; b < items.length; b++) {
+            const A = items[a], B = items[b];
+            const needX = (A.w + B.w) / 2 + PAD;
+            const needY = (A.h + B.h) / 2 + PAD;
+            const ddx = B.x - A.x, ddy = B.y - A.y;
+            const ox = needX - Math.abs(ddx);
+            const oy = needY - Math.abs(ddy);
+            if (ox > 0 && oy > 0) {
+              // push apart along the smaller overlap axis
+              if (ox < oy) {
+                const s = (ddx >= 0 ? 1 : -1) * ox * 0.5;
+                A.x -= s; B.x += s;
+              } else {
+                const s = (ddy >= 0 ? 1 : -1) * oy * 0.5;
+                A.y -= s; B.y += s;
+              }
+              moved = true;
+            }
+          }
+        }
+        // keep the whole cluster on-screen and outside the hole
+        for (const it of items) {
+          const limX = vw / 2 - it.w / 2 - 18;
+          const limY = vh / 2 - it.h / 2 - 18;
+          it.x = Math.max(-limX, Math.min(limX, it.x));
+          it.y = Math.max(-limY, Math.min(limY, it.y));
+          const d = Math.hypot(it.x, it.y) || 1;
+          const minR = 118;                       // never cover the hole
+          if (d < minR) { it.x = it.x / d * minR; it.y = it.y / d * minR; }
+          if (d > maxR) { it.x = it.x / d * maxR; it.y = it.y / d * maxR; }
+        }
+        if (!moved) break;
+      }
+
+      // 3) write the positions out, with a calm, evenly-spaced stagger
+      items.forEach((it, i) => {
+        it.chip.style.setProperty('--dx', it.x.toFixed(1) + 'px');
+        it.chip.style.setProperty('--dy', it.y.toFixed(1) + 'px');
+        // 220ms apart: each feature gets its own moment
+        it.chip.style.animationDelay = (i * 220) + 'ms';
+      });
+
       // staggered emergence of the page chrome once the view is pulled in
       $$('.intro-item').forEach(el => {
         const order = Number(el.style.getPropertyValue('--io')) || 0;
-        el.style.animationDelay = (order * 80) + 'ms';
+        el.style.animationDelay = (order * 110) + 'ms';
       });
     }
     layoutChips();
@@ -1305,21 +1368,32 @@
     function scheduleFeatureSounds() {
       if (!Sound.isEnabled() || !Sound.supported()) return;
       chips.forEach((chip, i) => {
-        setTimeout(() => Sound.playWhoosh(i), 40 + i * 150);
+        setTimeout(() => Sound.playWhoosh(i), 60 + i * 220);
       });
     }
+
+    let onChipResize = null;
 
     function finishIntro() {
       intro.classList.add('is-done');
       document.documentElement.classList.remove('intro-lock', 'intro-play');
+      document.documentElement.classList.add('intro-ready');
       if (heroSection) heroSection.classList.add('in');
       $$('.intro-item').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none'; });
+      if (onChipResize) window.removeEventListener('resize', onChipResize);
     }
 
     if (!reduced && !alreadyPlayed) {
       try { sessionStorage.setItem('apx_intro', '1'); } catch (e) {}
       document.documentElement.classList.add('intro-lock');
       layoutChips();
+      // keep the features separated if the window changes mid-intro
+      let chipResizeT = null;
+      onChipResize = () => {
+        clearTimeout(chipResizeT);
+        chipResizeT = setTimeout(layoutChips, 160);
+      };
+      window.addEventListener('resize', onChipResize);
 
       requestAnimationFrame(() => {
         // 1) the black hole ignites and swallows the screen
@@ -1330,7 +1404,7 @@
           Sound.playForming(1.2);
         }
 
-        // 2) features burst out of the hole, one after another
+        // 2) features drift out of the hole, one at a time — calm, unhurried
         setTimeout(() => {
           intro.classList.add('is-releasing', 'is-void-out');
           spawnBurst();
@@ -1341,7 +1415,7 @@
             Sound.startTerminal();
           }
           scheduleFeatureSounds();
-        }, 1150);
+        }, 1350);
 
         // 3) the whole view is pulled/dragged toward the main content
         setTimeout(() => {
@@ -1356,8 +1430,8 @@
             document.body.classList.remove('intro-glide');
             finishIntro();
             if (window.HoleGL) window.HoleGL.stop();
-          }, 900);
-        }, 3050);
+          }, 1300);
+        }, 4200);
       });
     } else {
       finishIntro();
