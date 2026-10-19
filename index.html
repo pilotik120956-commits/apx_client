@@ -353,17 +353,22 @@
             <h3>Модулі APX CLIENT</h3>
             <p>Повний набір відкривається після активації ключа — прямо в самому моді.</p>
           </div>
-          <div class="tabs" role="tablist" aria-label="Категорії модулів">
-            <button class="tab active" role="tab" aria-selected="true" data-filter="all">Усі</button>
-            <button class="tab" role="tab" aria-selected="false" data-filter="visual">Візуал</button>
-            <button class="tab" role="tab" aria-selected="false" data-filter="world">Світ</button>
-            <button class="tab" role="tab" aria-selected="false" data-filter="auto">Автоматизація</button>
-            <button class="tab" role="tab" aria-selected="false" data-filter="social">Соціальне</button>
+          <div class="modules-tools">
+            <label class="module-search">
+              <svg class="sicon" width="13" height="13" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="moduleSearch" placeholder="Пошук модуля…" aria-label="Пошук модуля" autocomplete="off">
+            </label>
+            <div class="tabs" role="tablist" aria-label="Категорії модулів">
+              <button class="tab active" role="tab" aria-selected="true" data-filter="all">Усі</button>
+              <button class="tab" role="tab" aria-selected="false" data-filter="visual">Візуал</button>
+              <button class="tab" role="tab" aria-selected="false" data-filter="world">Світ</button>
+              <button class="tab" role="tab" aria-selected="false" data-filter="auto">Автоматизація</button>
+              <button class="tab" role="tab" aria-selected="false" data-filter="social">Соціальне</button>
+            </div>
           </div>
         </div>
 
-        <div class="module-grid" id="moduleGrid">
-          <div class="module-group" data-cat="visual">
+        <div class="module-grid" id="moduleGrid">          <div class="module-group" data-cat="visual">
             <h4><i></i> Візуал</h4>
             <div class="module-row"><div><div class="module-name">Fullbright</div><div class="module-desc">Максимальна яскравість світу</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
             <div class="module-row"><div><div class="module-name">NameTags</div><div class="module-desc">Інформація над гравцями</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
@@ -400,7 +405,12 @@
           </div>
         </div>
 
-        <div class="modules-foot"><i></i> 20 модулів · ключ вводиться в самому моді</div>
+        <div class="modules-empty" id="modulesEmpty" hidden>
+          <svg class="sicon" width="20" height="20" aria-hidden="true"><use href="#i-search"/></svg>
+          <p>Нічого не знайдено. Спробуй інший запит або категорію.</p>
+        </div>
+
+        <div class="modules-foot"><i></i> <span id="moduleCount">20</span> модулів · ключ вводиться в самому моді</div>
       </div>
     </div>
   </section>
@@ -1576,9 +1586,42 @@
     burger.setAttribute('aria-expanded', 'false');
   }));
 
-  /* ---------- module tabs ---------- */
+  /* ---------- module tabs + live search ---------- */
   const tabs = $$('.tab');
   const groups = $$('.module-group');
+  const rows = $$('.module-row');
+  const searchInput = $('#moduleSearch');
+  const emptyState = $('#modulesEmpty');
+  const countEl = $('#moduleCount');
+  let activeFilter = 'all';
+
+  function applyModuleFilter() {
+    const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+    // 1) text match — store the result on a data flag, not on `hidden` yet
+    rows.forEach(row => {
+      const name = (row.querySelector('.module-name') || {}).textContent || '';
+      const desc = (row.querySelector('.module-desc') || {}).textContent || '';
+      const match = !q || (name + ' ' + desc).toLowerCase().includes(q);
+      row.dataset.match = match ? '1' : '0';
+      row.classList.toggle('is-hit', !!q && match);
+    });
+
+    // 2) combine text match with the active category, then apply
+    groups.forEach(group => {
+      const catOk = activeFilter === 'all' || group.dataset.cat === activeFilter;
+      const groupRows = [...group.querySelectorAll('.module-row')];
+      groupRows.forEach(r => { r.hidden = !(catOk && r.dataset.match === '1'); });
+      const visible = groupRows.filter(r => !r.hidden).length;
+      group.hidden = !catOk || visible === 0;
+    });
+
+    const shown = rows.filter(r => !r.hidden).length;
+    if (countEl) countEl.textContent = shown;
+    if (emptyState) emptyState.hidden = shown !== 0;
+    if (shown === 0) rows.forEach(r => r.classList.remove('is-hit'));
+  }
+
   tabs.forEach(tab => tab.addEventListener('click', () => {
     tabs.forEach(t => {
       t.classList.remove('active');
@@ -1586,11 +1629,17 @@
     });
     tab.classList.add('active');
     tab.setAttribute('aria-selected', 'true');
-    const filter = tab.dataset.filter;
-    groups.forEach(group => {
-      group.hidden = filter !== 'all' && group.dataset.cat !== filter;
-    });
+    activeFilter = tab.dataset.filter;
+    applyModuleFilter();
   }));
+
+  if (searchInput) {
+    searchInput.addEventListener('input', applyModuleFilter);
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { searchInput.value = ''; applyModuleFilter(); }
+    });
+  }
+  applyModuleFilter();
 
   /* ---------- activation key (вводиться в самому моді) ---------- */
 
