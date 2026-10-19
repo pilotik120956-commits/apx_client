@@ -1719,3 +1719,23 @@ html.intro-ready .motes,.motes.ready{opacity:1;}
   .scan-sweep,.ticker-track{animation:none;}
   .scan-sweep{display:none;}
 }
+
+/* ============ polish: scrollbar, focus, selection ============ */
+::selection{background:rgba(var(--accent-rgb),.32);color:#fff;}
+html{scrollbar-color:rgba(var(--accent-rgb),.42) transparent;scrollbar-width:thin;}
+::-webkit-scrollbar{width:11px;height:11px;}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
+::-webkit-scrollbar-thumb{
+  border-radius:8px;border:3px solid transparent;background-clip:content-box;
+  background-color:rgba(var(--accent-rgb),.36);
+}
+::-webkit-scrollbar-thumb:hover{background-color:rgba(var(--accent-rgb),.6);}
+::-webkit-scrollbar-corner{background:transparent;}
+
+:focus-visible{
+  outline:2px solid rgba(var(--accent-rgb),.75);
+  outline-offset:3px;border-radius:10px;
+}
+.btn:focus-visible,.theme-opt:focus-visible,.tabs button:focus-visible{
+  outline-offset:4px;
+}

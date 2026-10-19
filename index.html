@@ -1763,6 +1763,35 @@
     payResult.textContent = '✔ Обрано: ' + button.dataset.pay + '. Напиши в Telegram, щоб завершити замовлення.';
   }));
 
+  /* ---------- keyboard shortcuts ----------
+     M  mute / unmute the sound
+     T  cycle the theme
+     Ignored while typing in a field or with a modifier held. */
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'm' && event.key !== 'M' && event.key !== 't' && event.key !== 'T') return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const tag = (event.target && event.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (event.target && event.target.isContentEditable) return;
+    if (modal.classList.contains('open')) return;
+
+    if (event.key === 'm' || event.key === 'M') {
+      const btn = $('#soundToggle');
+      if (btn) { btn.click(); toast(Sound.isEnabled() ? 'Звук увімкнено' : 'Звук вимкнено'); }
+    } else {
+      const theme = window.ApxTheme;
+      if (theme && typeof theme.list === "function") {
+        const ids = theme.list();
+        const NAMES = { cosmic: "Cosmic", obsidian: "Obsidian", abyss: "Abyss", ember: "Ember" };
+        const cur = theme.get ? theme.get() : null;
+        const i = Math.max(0, ids.indexOf(cur));
+        const next = ids[(i + 1) % ids.length];
+        theme.set(next);
+        toast("Тема: " + (NAMES[next] || next));
+      }
+    }
+  });
+
   /* ---------- toast ---------- */
   let toastTimer = null;
   function toast(message) {
