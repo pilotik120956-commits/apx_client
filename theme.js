@@ -30,6 +30,12 @@
     root.setAttribute("data-theme", id);
     current = id;
     try { localStorage.setItem(KEY, id); } catch (e) {}
+    // keep the mobile browser chrome in step with the theme
+    const meta = document.getElementById("metaTheme");
+    if (meta) {
+      const bg = getComputedStyle(root).getPropertyValue("--bg").trim();
+      if (bg) meta.setAttribute("content", bg);
+    }
     // remove the freeze on the next frame so the transition is smooth
     if (!animate) requestAnimationFrame(() => root.classList.remove("theme-no-anim"));
     document.dispatchEvent(new CustomEvent("apxtheme", { detail: { theme: id } }));

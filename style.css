@@ -1431,3 +1431,103 @@ html:not(.theme-no-anim) .bg{
   .ribbon{height:150px;filter:blur(48px);}
   .brackets{display:none;}
 }
+
+/* ============================================================
+   FAQ accordion
+   ============================================================ */
+.faq{
+  display:flex;flex-direction:column;gap:12px;
+  max-width:860px;margin:0 auto;
+}
+.faq-item{
+  border-radius:20px;overflow:hidden;
+  transition:border-color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.faq-item[open]{
+  border-color:rgba(var(--accent-rgb),.34);
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.08);
+}
+.faq-item summary{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 22px;cursor:pointer;list-style:none;
+  font-size:15.5px;font-weight:600;color:var(--text);
+  transition:color .25s var(--ease);
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary:hover{color:var(--accent-soft);}
+.faq-mark{
+  margin-left:auto;flex:0 0 auto;color:var(--muted);
+  transition:transform .35s var(--ease),color .25s var(--ease);
+}
+.faq-item[open] .faq-mark{transform:rotate(45deg);color:var(--accent-bright);}
+.faq-body{
+  padding:0 22px 20px;color:var(--muted);font-size:14.5px;line-height:1.7;
+  max-width:72ch;
+}
+.faq-body b{color:var(--accent-soft);font-weight:600;}
+.faq-item[open] .faq-body{animation:faqOpen .4s var(--ease);}
+@keyframes faqOpen{
+  from{opacity:0;transform:translateY(-6px);}
+  to{opacity:1;transform:none;}
+}
+@media (max-width:640px){
+  .faq-item summary{padding:15px 16px;font-size:14.5px;}
+  .faq-body{padding:0 16px 16px;font-size:13.5px;}
+}
+
+/* ---- back-to-top button ---- */
+.to-top{
+  position:fixed;right:22px;bottom:22px;z-index:90;
+  width:44px;height:44px;border-radius:14px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);
+  border:1px solid var(--stroke);
+  background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:0 12px 34px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(14px) scale(.92);pointer-events:none;
+  transition:opacity .35s var(--ease),transform .35s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.to-top.show{opacity:1;transform:none;pointer-events:auto;}
+.to-top:hover{color:var(--text);border-color:var(--stroke-strong);transform:translateY(-2px);}
+@media (max-width:640px){ .to-top{right:14px;bottom:14px;width:40px;height:40px;} }
+
+/* ---- hero HUD frame around the client mockup ---- */
+.hud{
+  position:absolute;inset:0;pointer-events:none;z-index:-1;
+  opacity:.7;
+}
+.hud-ring{
+  position:absolute;left:50%;top:50%;width:96%;height:96%;
+  translate:-50% -50%;border-radius:50%;
+  border:1px solid rgba(var(--accent-rgb),.14);
+  border-top-color:rgba(var(--accent-rgb),.42);
+  animation:hudSpin 46s linear infinite;
+}
+.hud-ring-2{
+  width:82%;height:82%;border-style:dashed;
+  border-color:rgba(var(--accent-rgb),.10);
+  border-top-color:rgba(var(--soft-rgb),.3);
+  animation-duration:72s;animation-direction:reverse;
+}
+@keyframes hudSpin{to{rotate:360deg;}}
+.hud-tick{
+  position:absolute;width:10px;height:10px;
+  border:1px solid rgba(var(--accent-rgb),.45);
+}
+.hud-tick-1{top:0;left:0;border-right:0;border-bottom:0;}
+.hud-tick-2{top:0;right:0;border-left:0;border-bottom:0;}
+.hud-tick-3{bottom:0;left:0;border-right:0;border-top:0;}
+.hud-tick-4{bottom:0;right:0;border-left:0;border-top:0;}
+.hud-tag{
+  position:absolute;padding:5px 10px;border-radius:999px;
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;
+  border:1px solid var(--stroke);
+  background:rgba(255,255,255,.03);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+.hud-tag-a{top:6px;left:6px;}
+.hud-tag-b{bottom:6px;right:6px;}
+@media (max-width:980px){ .hud{display:none;} }

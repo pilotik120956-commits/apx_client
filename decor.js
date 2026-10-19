@@ -87,11 +87,54 @@
     });
   }
 
+  // ---------- 5. hero HUD frame ----------
+  function heroHud() {
+    const stage = document.querySelector(".hero-stage");
+    if (!stage || stage.querySelector(".hud")) return;
+    const hud = document.createElement("div");
+    hud.className = "hud";
+    hud.setAttribute("aria-hidden", "true");
+    hud.innerHTML =
+      '<span class="hud-ring"></span>' +
+      '<span class="hud-ring hud-ring-2"></span>' +
+      '<span class="hud-tick hud-tick-1"></span>' +
+      '<span class="hud-tick hud-tick-2"></span>' +
+      '<span class="hud-tick hud-tick-3"></span>' +
+      '<span class="hud-tick hud-tick-4"></span>' +
+      '<span class="hud-tag hud-tag-a">STABLE · 240 FPS</span>' +
+      '<span class="hud-tag hud-tag-b">FABRIC 1.21.11</span>';
+    stage.appendChild(hud);
+  }
+
+  // ---------- 6. back-to-top button ----------
+  function toTop() {
+    if (document.querySelector(".to-top")) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "to-top";
+    btn.setAttribute("aria-label", "Догори");
+    btn.innerHTML =
+      '<svg class="sicon" width="17" height="17" aria-hidden="true" viewBox="0 0 24 24">' +
+      '<path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+    document.body.appendChild(btn);
+
+    const toggle = () => {
+      btn.classList.toggle("show", window.scrollY > window.innerHeight * 0.9);
+    };
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    });
+    window.addEventListener("scroll", toggle, { passive: true });
+    toggle();
+  }
+
   function build() {
     ribbons();
     sigils();
     rail();
     brackets();
+    heroHud();
+    toTop();
     if (!reduce) document.documentElement.classList.add("decor-anim");
   }
 
