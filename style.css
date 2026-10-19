@@ -32,6 +32,7 @@ body{
   overflow-x:hidden;
 }
 img,svg{display:block;max-width:100%;}
+html.intro-lock,html.intro-lock body{overflow:hidden;}
 a{color:inherit;text-decoration:none;}
 button,input{font:inherit;color:inherit;}
 button{background:none;border:0;cursor:pointer;}
@@ -69,6 +70,129 @@ button{background:none;border:0;cursor:pointer;}
 .noise{
   position:absolute;inset:0;opacity:.035;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+.stars{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.9;}
+
+/* ============ black hole intro ============ */
+.intro{
+  position:fixed;inset:0;z-index:900;pointer-events:none;
+  display:grid;place-items:center;
+}
+.intro::before{
+  content:"";position:absolute;inset:0;background:#000;
+  opacity:0;transition:opacity .42s var(--ease);
+}
+.intro.is-armed::before{opacity:1;}
+.intro.is-open::before{opacity:0;}
+.intro-core{
+  position:relative;width:14px;height:14px;border-radius:50%;
+  background:#000;
+  box-shadow:0 0 0 1px rgba(232,240,255,.5),0 0 40px 6px rgba(150,190,255,.35);
+  transform:scale(.001);opacity:0;
+}
+.intro.is-armed .intro-core{opacity:1;transform:scale(1);}
+.intro.is-open .intro-core{
+  opacity:0;transform:scale(1);
+  transition:transform .85s cubic-bezier(.3,0,.2,1),opacity .5s ease .42s;
+}
+.intro-ring{
+  position:absolute;width:16px;height:16px;border-radius:50%;
+  border:1.5px solid rgba(220,235,255,.85);opacity:0;
+}
+.intro.is-open .intro-ring{
+  opacity:1;
+  animation:holeRing 1.25s cubic-bezier(.16,.68,.24,1) forwards;
+}
+@keyframes holeRing{
+  0%{transform:scale(1);opacity:.9;}
+  70%{opacity:.28;}
+  100%{transform:scale(120);opacity:0;}
+}
+.intro-flash{
+  position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(190,215,255,.55),transparent 62%);
+  opacity:0;
+}
+.intro.is-open .intro-flash{animation:holeFlash .9s ease-out forwards;}
+@keyframes holeFlash{
+  0%{opacity:0;transform:scale(.06);}
+  35%{opacity:.5;}
+  100%{opacity:0;transform:scale(1.4);}
+}
+.intro.is-done{display:none;}
+
+/* ============ event horizon portal (page / section travel) ============ */
+.horizon{
+  position:fixed;inset:0;z-index:880;pointer-events:none;
+  display:grid;place-items:center;opacity:0;
+}
+.horizon.is-active{opacity:1;}
+.horizon-black{
+  position:absolute;inset:0;background:#000;opacity:0;
+}
+.horizon.is-suck .horizon-black{animation:horizonBlack .52s ease-in forwards;}
+.horizon.is-suck-out .horizon-black{animation:horizonOut .52s ease-out forwards;}
+@keyframes horizonBlack{
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+@keyframes horizonOut{
+  0%{opacity:1;}
+  100%{opacity:0;}
+}
+.horizon-core{
+  position:relative;width:10px;height:10px;border-radius:50%;background:#000;
+  box-shadow:0 0 0 1px rgba(232,240,255,.55),0 0 34px 5px rgba(150,190,255,.4);
+  opacity:0;transform:scale(.2);
+}
+.horizon.is-suck .horizon-core{opacity:1;transform:scale(.34);}
+.horizon.is-out .horizon-core{animation:horizonCore .62s cubic-bezier(.2,.7,.2,1) forwards;}
+@keyframes horizonCore{
+  0%{opacity:1;transform:scale(.34);}
+  100%{opacity:0;transform:scale(1);}
+}
+.horizon-ring{
+  position:absolute;width:12px;height:12px;border-radius:50%;
+  border:1.5px solid rgba(224,238,255,.9);opacity:0;
+}
+.horizon.is-out .horizon-ring{animation:holeRing 1.05s cubic-bezier(.16,.68,.24,1) forwards;}
+.horizon-flash{
+  position:absolute;inset:0;opacity:0;
+  background:radial-gradient(circle at 50% 50%,rgba(190,215,255,.5),transparent 60%);
+}
+.horizon.is-out .horizon-flash{animation:holeFlash .8s ease-out forwards;}
+
+/* current page gets sucked into the hole */
+body.is-falling{
+  animation:suckedIn .56s cubic-bezier(.55,0,.85,.4) forwards;
+  transform-origin:50% 46%;
+}
+@keyframes suckedIn{
+  0%{opacity:1;transform:scale(1);filter:blur(0) saturate(1);}
+  60%{opacity:.55;}
+  100%{opacity:0;transform:scale(.9);filter:blur(9px) saturate(.4);}
+}
+/* pages/sections emerge back from the hole */
+body.is-arriving{animation:emergedFromHole .78s cubic-bezier(.16,.84,.24,1) both;}
+@keyframes emergedFromHole{
+  from{opacity:0;transform:scale(.94);filter:blur(8px);}
+  to{opacity:1;transform:none;filter:blur(0);}
+}
+.sucking > *{
+  transition:transform .55s cubic-bezier(.55,0,.85,.4),opacity .55s ease,filter .55s ease;
+  transform:scale(.86);
+  opacity:0;
+  filter:blur(8px);
+}
+
+/* elements that emerge from the hole */
+.intro-item{opacity:0;transform:translateY(14px) scale(.94);}
+.intro.is-filling .intro-item{
+  animation:emerge .78s cubic-bezier(.16,.84,.24,1) forwards;
+  animation-delay:calc(.42s + var(--io,0) * 90ms);
+}
+@keyframes emerge{
+  from{opacity:0;transform:translateY(22px) scale(.9);filter:blur(8px);}
+  to{opacity:1;transform:none;filter:blur(0);}
 }
 
 /* ============ glass ============ */
@@ -112,12 +236,53 @@ h2{font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.05;letter-spacing:-.035em;fo
 
 /* ============ buttons ============ */
 .btn{
+  position:relative;overflow:hidden;
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   padding:13px 22px;border-radius:14px;border:1px solid transparent;
   font-size:14px;font-weight:600;letter-spacing:.01em;white-space:nowrap;
   transition:transform .22s var(--ease),box-shadow .22s var(--ease),background .22s var(--ease),border-color .22s var(--ease);
 }
 .btn:active{transform:translateY(1px) scale(.99);}
+/* children wrap so the pull animation can twist them */
+.btn > *{position:relative;z-index:2;transition:transform .34s var(--ease),filter .34s var(--ease);}
+.btn::after{
+  content:"";position:absolute;left:50%;top:50%;width:26px;height:26px;
+  margin:-13px 0 0 -13px;border-radius:50%;pointer-events:none;opacity:0;z-index:1;
+  background:radial-gradient(circle,rgba(255,255,255,.9),rgba(180,210,255,.35) 45%,transparent 72%);
+  transform:scale(.2);
+}
+/* ---- hover: light bends toward the center, border softly pulses ---- */
+.btn:hover > *{
+  transform:scale(.965) rotate(var(--twist,0deg));
+  filter:blur(.35px);
+}
+.btn:hover > *:first-child{--twist:2.4deg;}
+.btn:hover > *:last-child{--twist:-2.4deg;}
+.btn:hover{
+  animation:edgePulse 1.75s ease-in-out infinite;
+  border-color:var(--stroke-strong);
+}
+@keyframes edgePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(220,236,255,.34),0 10px 28px rgba(0,0,0,.42);}
+  50%{box-shadow:0 0 0 4px rgba(220,236,255,.06),0 14px 34px rgba(0,0,0,.5);}
+}
+/* ---- press: singularity collapse ---- */
+.btn.is-collapsing::after{animation:collapseFlash .16s ease-out forwards;}
+@keyframes collapseFlash{
+  from{opacity:.85;transform:scale(.2);}
+  to{opacity:0;transform:scale(2.2);}
+}
+@keyframes buttonCollapse{
+  0%{transform:scale(1);}
+  42%{transform:scale(.9,.42);}
+  58%{transform:scale(.34,.34);}
+  74%{transform:scale(1.04);}
+  88%{transform:scale(.98);}
+  100%{transform:scale(1);}
+}
+.btn.is-collapsing{
+  animation:buttonCollapse .72s var(--ease);
+}
 .btn-primary{
   color:#0a0f1e;
   background:linear-gradient(180deg,#eef2fb 0%,#c9d6f0 36%,#9db4e6 100%);

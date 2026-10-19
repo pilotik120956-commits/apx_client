@@ -37,11 +37,20 @@
 
 <!-- ================= background ================= -->
 <div class="bg" aria-hidden="true">
+  <canvas class="stars" id="stars"></canvas>
   <div class="orb orb-a"></div>
   <div class="orb orb-b"></div>
   <div class="orb orb-c"></div>
   <div class="grid-lines"></div>
   <div class="noise"></div>
+</div>
+
+<!-- ================= event horizon portal ================= -->
+<div class="horizon" id="horizon" aria-hidden="true">
+  <div class="horizon-black"></div>
+  <div class="horizon-core"></div>
+  <div class="horizon-ring"></div>
+  <div class="horizon-flash"></div>
 </div>
 
 <!-- ================= nav ================= -->
@@ -169,6 +178,153 @@
     mobileMenu.classList.remove('open');
     burger.setAttribute('aria-expanded', 'false');
   }));
+
+  /* ---------- star field ---------- */
+  const starCanvas = $('#stars');
+  if (starCanvas && starCanvas.getContext) {
+    const ctx = starCanvas.getContext('2d');
+    let W = 0, H = 0, dpr = 1, stars = [], meteors = [], rafId = null, lastMeteor = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resizeStars() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = starCanvas.clientWidth; H = starCanvas.clientHeight;
+      starCanvas.width = Math.round(W * dpr); starCanvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      stars = new Array(Math.round((W * H) / 9000)).fill(0).map(() => ({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.15 + 0.25, a: Math.random() * 0.55 + 0.25,
+        tw: Math.random() * 0.02 + 0.004, ph: Math.random() * Math.PI * 2
+      }));
+    }
+    function spawnMeteor() {
+      const fromLeft = Math.random() > 0.4;
+      const speed = 9 + Math.random() * 7;
+      const angle = Math.PI * (Math.random() * 0.06 + 0.2);
+      meteors.push({
+        x: fromLeft ? -60 - Math.random() * 120 : W + 60 + Math.random() * 120,
+        y: Math.random() * H * 0.55 - 40,
+        vx: (fromLeft ? 1 : -1) * Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        len: 130 + Math.random() * 150,
+        life: 1, decay: 0.008 + Math.random() * 0.006,
+        width: 1 + Math.random() * 0.7
+      });
+    }
+    function drawStars(t) {
+      ctx.clearRect(0, 0, W, H);
+      for (const s of stars) {
+        ctx.globalAlpha = Math.max(0.05, Math.min(1, s.a + Math.sin(t * s.tw + s.ph) * 0.3));
+        ctx.fillStyle = '#eef4ff';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        const m = meteors[i];
+        m.x += m.vx; m.y += m.vy; m.life -= m.decay;
+        if (m.life <= 0 || m.y - m.len > H + 80 || m.x < -300 || m.x > W + 300) { meteors.splice(i, 1); continue; }
+        const hyp = Math.hypot(m.vx, m.vy);
+        const tx = m.x - (m.vx / hyp) * m.len, ty = m.y - (m.vy / hyp) * m.len;
+        const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+        g.addColorStop(0, 'rgba(255,255,255,' + (0.9 * m.life).toFixed(3) + ')');
+        g.addColorStop(0.25, 'rgba(198,222,255,' + (0.45 * m.life).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(150,190,255,0)');
+        ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineWidth = m.width; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.85 * m.life).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(m.x, m.y, m.width * 1.1, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function loop(now) {
+      drawStars(now * 0.001);
+      if (now - lastMeteor > 1400 + Math.random() * 1900) { lastMeteor = now; spawnMeteor(); if (Math.random() > 0.7) spawnMeteor(); }
+      rafId = requestAnimationFrame(loop);
+    }
+    resizeStars();
+    if (reduceMotion) drawStars(0); else rafId = requestAnimationFrame(loop);
+    let rt = null;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resizeStars(); if (reduceMotion) drawStars(0); }, 180); });
+  }
+
+  /* ---------- singularity button press ---------- */
+  const reduceAll = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $$('.btn').forEach(btn => {
+    btn.addEventListener('pointerdown', () => {
+      if (reduceAll) return;
+      btn.classList.remove('is-collapsing');
+      void btn.offsetWidth;
+      btn.classList.add('is-collapsing');
+    });
+    btn.addEventListener('animationend', event => {
+      if (event.animationName === 'buttonCollapse') btn.classList.remove('is-collapsing');
+    });
+  });
+
+  /* ---------- event horizon portal ---------- */
+  const horizon = $('#horizon');
+  try {
+    if (sessionStorage.getItem('apx_portal') === '1') {
+      sessionStorage.removeItem('apx_portal');
+      if (reduceAll) {
+        if (horizon) horizon.classList.add('is-done');
+      } else {
+        document.body.classList.add('is-arriving');
+        if (horizon) {
+          horizon.classList.add('is-active', 'is-out');
+          setTimeout(() => horizon.classList.remove('is-active', 'is-out'), 900);
+        }
+        setTimeout(() => document.body.classList.remove('is-arriving'), 820);
+      }
+    }
+  } catch (e) {}
+
+  function portalTo(url) {
+    try { sessionStorage.setItem('apx_portal', '1'); } catch (e) {}
+    if (horizon) horizon.classList.add('is-active', 'is-suck', 'is-suck-out');
+    document.body.classList.add('is-falling');
+    setTimeout(() => { window.location.href = url; }, 470);
+  }
+  function portalToSection(hash) {
+    const target = document.querySelector(hash);
+    if (!target) { window.location.hash = hash; return; }
+    document.body.classList.add('is-falling');
+    if (horizon) horizon.classList.add('is-active', 'is-suck-out');
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      document.body.classList.remove('is-falling');
+      document.body.classList.add('is-arriving');
+      if (horizon) { horizon.classList.remove('is-suck'); horizon.classList.add('is-out'); }
+      setTimeout(() => {
+        document.body.classList.remove('is-arriving');
+        if (horizon) horizon.classList.remove('is-active', 'is-out');
+      }, 820);
+    }, 460);
+  }
+
+  if (!reduceAll) {
+    document.addEventListener('click', event => {
+      const link = event.target.closest && event.target.closest('a[href]');
+      if (!link) return;
+      if (link.target === '_blank' || link.hasAttribute('download')) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+      if (href.charAt(0) === '#') {
+        if (!document.querySelector(href)) return;
+        event.preventDefault();
+        portalToSection(href);
+        return;
+      }
+      event.preventDefault();
+      portalTo(href);
+    });
+  }
+
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      document.body.classList.remove('is-falling');
+      if (horizon) horizon.classList.remove('is-active', 'is-suck', 'is-suck-out', 'is-out');
+    }
+  });
 
   const revealEls = $$('.reveal');
   if ('IntersectionObserver' in window) {

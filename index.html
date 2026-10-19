@@ -34,6 +34,7 @@
 
 <!-- ================= background ================= -->
 <div class="bg" aria-hidden="true">
+  <canvas class="stars" id="stars"></canvas>
   <div class="orb orb-a"></div>
   <div class="orb orb-b"></div>
   <div class="orb orb-c"></div>
@@ -41,25 +42,40 @@
   <div class="noise"></div>
 </div>
 
+<!-- ================= event horizon portal ================= -->
+<div class="horizon" id="horizon" aria-hidden="true">
+  <div class="horizon-black"></div>
+  <div class="horizon-core"></div>
+  <div class="horizon-ring"></div>
+  <div class="horizon-flash"></div>
+</div>
+
+<!-- ================= black hole intro ================= -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-core" id="introCore"></div>
+  <div class="intro-ring"></div>
+  <div class="intro-flash"></div>
+</div>
+
 <!-- ================= nav ================= -->
 <div class="nav-wrap">
   <div class="nav-shell">
     <nav class="nav glass" id="nav">
-      <a class="brand" href="#top" aria-label="APX CLIENT — на початок">
+      <a class="brand intro-item" style="--io:1" href="#top" aria-label="APX CLIENT — на початок">
         <span class="brand-mark">A</span>
         <span class="brand-name">APX <em>CLIENT</em></span>
       </a>
-      <div class="nav-links">
+      <div class="nav-links intro-item" style="--io:2">
         <a href="#features">Можливості</a>
         <a href="#modules">Модулі</a>
         <a href="#pricing">Тарифи</a>
         <a href="review.html">Огляд</a>
       </div>
-      <a class="btn btn-primary nav-cta" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+      <a class="btn btn-primary nav-cta intro-item" style="--io:3" href="https://t.me/yourchannel" target="_blank" rel="noopener">
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
         Telegram
       </a>
-      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
+      <button class="burger intro-item" style="--io:4" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
     </nav>
@@ -76,12 +92,12 @@
 <main id="top">
 
   <!-- ================= hero ================= -->
-  <section class="container hero">
+  <section class="container hero reveal">
     <div class="hero-copy">
-      <span class="eyebrow"><i></i> Minecraft · Fabric 1.21.11</span>
-      <h1>Твій Minecraft.<br><span class="grad">Без компромісів.</span></h1>
-      <p class="lead">APX CLIENT — це продуманий інтерфейс, плавний геймплей і стабільна робота. Усе, що потрібно, щоб грати комфортно й виглядати впевнено.</p>
-      <div class="hero-actions">
+      <span class="eyebrow intro-item" style="--io:5"><i></i> Minecraft · Fabric 1.21.11</span>
+      <h1 class="intro-item" style="--io:6">Твій Minecraft.<br><span class="grad">Без компромісів.</span></h1>
+      <p class="lead intro-item" style="--io:7">APX CLIENT — це продуманий інтерфейс, плавний геймплей і стабільна робота. Усе, що потрібно, щоб грати комфортно й виглядати впевнено.</p>
+      <div class="hero-actions intro-item" style="--io:8">
         <a class="btn btn-primary" href="#pricing">
           Отримати FREE
           <svg class="sicon" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -91,14 +107,14 @@
           Дивитись огляд
         </a>
       </div>
-      <div class="hero-meta">
+      <div class="hero-meta intro-item" style="--io:9">
         <span><b>FREE</b> + <b>PRO</b></span>
         <span>Fabric <b>1.21.11</b></span>
         <span>Підтримка <b>24/7</b></span>
       </div>
     </div>
 
-    <div class="hero-stage">
+    <div class="hero-stage intro-item" style="--io:7">
       <div class="hero-glow" aria-hidden="true"></div>
 
       <div class="client glass" aria-hidden="true">
@@ -453,6 +469,261 @@
 
   const $  = (s, c) => (c || document).querySelector(s);
   const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+
+  /* ---------- shooting stars ---------- */
+  const starCanvas = $('#stars');
+  if (starCanvas && starCanvas.getContext) {
+    const ctx = starCanvas.getContext('2d');
+    let W = 0, H = 0, dpr = 1;
+    let stars = [];
+    let meteors = [];
+    let rafId = null;
+    let lastMeteor = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resizeStars() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = starCanvas.clientWidth;
+      H = starCanvas.clientHeight;
+      starCanvas.width = Math.round(W * dpr);
+      starCanvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round((W * H) / 9000);
+      stars = new Array(count).fill(0).map(() => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.15 + 0.25,
+        a: Math.random() * 0.55 + 0.25,
+        tw: Math.random() * 0.02 + 0.004,
+        ph: Math.random() * Math.PI * 2,
+      }));
+    }
+
+    function spawnMeteor() {
+      const fromLeft = Math.random() > 0.4;
+      const speed = 9 + Math.random() * 7;
+      const angle = Math.PI * (Math.random() * 0.06 + 0.2);
+      const len = 130 + Math.random() * 150;
+      meteors.push({
+        x: fromLeft ? -60 - Math.random() * 120 : W + 60 + Math.random() * 120,
+        y: Math.random() * H * 0.55 - 40,
+        vx: (fromLeft ? 1 : -1) * Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        len,
+        life: 1,
+        decay: 0.008 + Math.random() * 0.006,
+        width: 1 + Math.random() * 0.7,
+      });
+    }
+
+    function drawStars(t) {
+      ctx.clearRect(0, 0, W, H);
+
+      for (const s of stars) {
+        const a = s.a + Math.sin(t * s.tw + s.ph) * 0.3;
+        ctx.globalAlpha = Math.max(0.05, Math.min(1, a));
+        ctx.fillStyle = '#eef4ff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        const m = meteors[i];
+        m.x += m.vx;
+        m.y += m.vy;
+        m.life -= m.decay;
+        if (m.life <= 0 || m.y - m.len > H + 80 || m.x < -300 || m.x > W + 300) {
+          meteors.splice(i, 1);
+          continue;
+        }
+        const nx = m.vx / Math.hypot(m.vx, m.vy);
+        const ny = m.vy / Math.hypot(m.vx, m.vy);
+        const tx = m.x - nx * m.len;
+        const ty = m.y - ny * m.len;
+
+        const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+        g.addColorStop(0, 'rgba(255,255,255,' + (0.9 * m.life).toFixed(3) + ')');
+        g.addColorStop(0.25, 'rgba(198,222,255,' + (0.45 * m.life).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(150,190,255,0)');
+
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = g;
+        ctx.lineWidth = m.width;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.85 * m.life).toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.width * 1.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function loop(now) {
+      drawStars(now * 0.001);
+      if (now - lastMeteor > 1400 + Math.random() * 1900) {
+        lastMeteor = now;
+        spawnMeteor();
+        if (Math.random() > 0.7) spawnMeteor();
+      }
+      rafId = requestAnimationFrame(loop);
+    }
+
+    resizeStars();
+    if (reduceMotion) {
+      drawStars(0);
+    } else {
+      rafId = requestAnimationFrame(loop);
+    }
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { resizeStars(); if (reduceMotion) drawStars(0); }, 180);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (reduceMotion) return;
+      if (document.hidden) { cancelAnimationFrame(rafId); rafId = null; }
+      else if (!rafId) rafId = requestAnimationFrame(loop);
+    });
+  }
+
+  /* ---------- singularity button press ---------- */
+  const reduceAll = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $$('.btn').forEach(btn => {
+    btn.addEventListener('pointerdown', () => {
+      if (reduceAll) return;
+      btn.classList.remove('is-collapsing');
+      void btn.offsetWidth;
+      btn.classList.add('is-collapsing');
+    });
+    btn.addEventListener('animationend', event => {
+      if (event.animationName === 'buttonCollapse') btn.classList.remove('is-collapsing');
+    });
+  });
+
+  /* ---------- event horizon portal ---------- */
+  const horizon = $('#horizon');
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // arrive: this page flew out of a black hole
+  try {
+    if (sessionStorage.getItem('apx_portal') === '1') {
+      sessionStorage.removeItem('apx_portal');
+      if (REDUCED) {
+        if (horizon) horizon.classList.add('is-done');
+      } else {
+        document.body.classList.add('is-arriving');
+        if (horizon) {
+          horizon.classList.add('is-active', 'is-out');
+          setTimeout(() => horizon.classList.remove('is-active', 'is-out'), 900);
+        }
+        setTimeout(() => document.body.classList.remove('is-arriving'), 820);
+      }
+    }
+  } catch (e) {}
+
+  function portalTo(url) {
+    try { sessionStorage.setItem('apx_portal', '1'); } catch (e) {}
+    if (horizon) horizon.classList.add('is-active', 'is-suck', 'is-suck-out');
+    document.body.classList.add('is-falling');
+    setTimeout(() => { window.location.href = url; }, 470);
+  }
+
+  // section travel inside this page: suck the current view, arrive at the target
+  function portalToSection(hash) {
+    const target = document.querySelector(hash);
+    if (!target) { window.location.hash = hash; return; }
+    document.body.classList.add('is-falling');
+    if (horizon) horizon.classList.add('is-active', 'is-suck-out');
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      document.body.classList.remove('is-falling');
+      document.body.classList.add('is-arriving');
+      if (horizon) {
+        horizon.classList.remove('is-suck');
+        horizon.classList.add('is-out');
+      }
+      setTimeout(() => {
+        document.body.classList.remove('is-arriving');
+        if (horizon) horizon.classList.remove('is-active', 'is-out');
+      }, 820);
+    }, 460);
+  }
+
+  if (!REDUCED) {
+    document.addEventListener('click', event => {
+      const link = event.target.closest && event.target.closest('a[href]');
+      if (!link) return;
+      if (link.target === '_blank' || link.hasAttribute('download')) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+      // same-page anchor -> section portal
+      if (href.charAt(0) === '#') {
+        if (!document.querySelector(href)) return;
+        event.preventDefault();
+        portalToSection(href);
+        return;
+      }
+      // cross-page link with a hash
+      const hashAt = href.indexOf('#');
+      if (hashAt > -1) {
+        event.preventDefault();
+        portalTo(href);
+        return;
+      }
+      // plain page navigation
+      event.preventDefault();
+      portalTo(href);
+    });
+  }
+
+  // restore browser back/forward navigation out of the bfcache
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      document.body.classList.remove('is-falling');
+      if (horizon) horizon.classList.remove('is-active', 'is-suck', 'is-suck-out', 'is-out');
+    }
+  });
+
+  /* ---------- black hole intro ---------- */
+  const intro = $('#intro');
+  const heroSection = $('.hero');
+  if (intro) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const alreadyPlayed = sessionStorage.getItem('apx_intro') === '1';
+
+    if (!reduced && !alreadyPlayed) {
+      document.documentElement.classList.add('intro-lock');
+      try { sessionStorage.setItem('apx_intro', '1'); } catch (e) {}
+
+      requestAnimationFrame(() => {
+        intro.classList.add('is-armed');
+        setTimeout(() => {
+          intro.classList.add('is-open', 'is-filling');
+        }, 420);
+        setTimeout(() => intro.classList.add('is-done'), 1750);
+        setTimeout(() => {
+          document.documentElement.classList.remove('intro-lock');
+          if (heroSection) heroSection.classList.add('in');
+        }, 1900);
+      });
+    } else {
+      intro.classList.add('is-done');
+      $$('.intro-item').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.filter = 'none';
+        el.style.animation = 'none';
+      });
+    }
+  }
 
   /* ---------- year ---------- */
   const year = $('#year');
