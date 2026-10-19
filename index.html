@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APX CLIENT — Minecraft, без компромісів</title>
+<meta name="description" content="APX CLIENT — продуманий інтерфейс, стабільна робота та повний набір модулів для комфортної гри в Minecraft.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= SVG sprite ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.2 3 7.4 7 9 4-1.6 7-4.8 7-9V6l-7-3z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 5v6h-6"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="8" r="3.5"/><path d="M17 4.6a3.5 3.5 0 0 1 0 6.8M21 20v-1.5a4 4 0 0 0-3-3.9"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-telegram" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8L12 3z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<!-- ================= background ================= -->
+<div class="bg" aria-hidden="true">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+  <div class="grid-lines"></div>
+  <div class="noise"></div>
+</div>
+
+<!-- ================= nav ================= -->
+<div class="nav-wrap">
+  <div class="nav-shell">
+    <nav class="nav glass" id="nav">
+      <a class="brand" href="#top" aria-label="APX CLIENT — на початок">
+        <span class="brand-mark">A</span>
+        <span class="brand-name">APX <em>CLIENT</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Можливості</a>
+        <a href="#modules">Модулі</a>
+        <a href="#pricing">Тарифи</a>
+        <a href="review.html">Огляд</a>
+      </div>
+      <a class="btn btn-primary nav-cta" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+        <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
+        Telegram
+      </a>
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="mobile-menu glass" id="mobileMenu">
+      <a href="#features">Можливості</a>
+      <a href="#modules">Модулі</a>
+      <a href="#pricing">Тарифи</a>
+      <a href="review.html">Огляд</a>
+      <a class="btn btn-primary" href="https://t.me/yourchannel" target="_blank" rel="noopener">Telegram</a>
+    </div>
+  </div>
+</div>
+
+<main id="top">
+
+  <!-- ================= hero ================= -->
+  <section class="container hero">
+    <div class="hero-copy">
+      <span class="eyebrow"><i></i> Minecraft · Fabric 1.21.11</span>
+      <h1>Твій Minecraft.<br><span class="grad">Без компромісів.</span></h1>
+      <p class="lead">APX CLIENT — це продуманий інтерфейс, плавний геймплей і стабільна робота. Усе, що потрібно, щоб грати комфортно й виглядати впевнено.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#pricing">
+          Отримати FREE
+          <svg class="sicon" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg>
+        </a>
+        <a class="btn btn-glass" href="review.html">
+          <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-play"/></svg>
+          Дивитись огляд
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span><b>FREE</b> + <b>PRO</b></span>
+        <span>Fabric <b>1.21.11</b></span>
+        <span>Підтримка <b>24/7</b></span>
+      </div>
+    </div>
+
+    <div class="hero-stage">
+      <div class="hero-glow" aria-hidden="true"></div>
+
+      <div class="client glass" aria-hidden="true">
+        <div class="client-top">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <span class="client-title">APX CLIENT · MENU</span>
+          <span class="chip">v2.3.1</span>
+        </div>
+        <div class="client-body">
+          <aside class="client-side">
+            <span class="side-btn active"><svg class="sicon" width="16" height="16"><use href="#i-grid"/></svg></span>
+            <span class="side-btn"><svg class="sicon" width="16" height="16"><use href="#i-layers"/></svg></span>
+            <span class="side-btn"><svg class="sicon" width="16" height="16"><use href="#i-spark"/></svg></span>
+            <span class="side-btn"><svg class="sicon" width="16" height="16"><use href="#i-users"/></svg></span>
+            <span class="side-btn"><svg class="sicon" width="16" height="16"><use href="#i-sliders"/></svg></span>
+          </aside>
+          <div class="client-main">
+            <div class="client-head">
+              <h3>Менеджер модулів</h3>
+              <span class="pill">20+ модулів</span>
+            </div>
+            <div class="search">
+              <svg class="sicon" width="12" height="12"><use href="#i-search"/></svg>
+              Пошук модуля...
+            </div>
+
+            <div class="client-group">Візуал</div>
+            <div class="client-row">
+              <span class="left"><span class="ic"><svg class="sicon" width="12" height="12"><use href="#i-spark"/></svg></span>Fullbright</span>
+              <span class="check"><svg class="sicon" width="10" height="10"><use href="#i-check"/></svg></span>
+            </div>
+            <div class="client-row">
+              <span class="left"><span class="ic"><svg class="sicon" width="12" height="12"><use href="#i-users"/></svg></span>NameTags</span>
+              <span class="check"><svg class="sicon" width="10" height="10"><use href="#i-check"/></svg></span>
+            </div>
+            <div class="client-row">
+              <span class="left"><span class="ic"><svg class="sicon" width="12" height="12"><use href="#i-layers"/></svg></span>Кастомні скіни</span>
+              <span class="check"><svg class="sicon" width="10" height="10"><use href="#i-check"/></svg></span>
+            </div>
+
+            <div class="client-group">Автоматизація</div>
+            <div class="client-row">
+              <span class="left"><span class="ic"><svg class="sicon" width="12" height="12"><use href="#i-target"/></svg></span>Auto waypoints</span>
+              <span class="check"><svg class="sicon" width="10" height="10"><use href="#i-check"/></svg></span>
+            </div>
+            <div class="client-row">
+              <span class="left"><span class="ic"><svg class="sicon" width="12" height="12"><use href="#i-bolt"/></svg></span>Autobuy</span>
+              <span class="check"><svg class="sicon" width="10" height="10"><use href="#i-check"/></svg></span>
+            </div>
+
+            <div class="client-foot"><i></i> Усі модулі доступні</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="float-chip chip-1 glass"><svg class="sicon" width="14" height="14"><use href="#i-spark"/></svg> Fullbright</div>
+      <div class="float-chip chip-2 glass"><svg class="sicon" width="14" height="14"><use href="#i-users"/></svg> VoiceChat</div>
+      <div class="float-chip chip-3 glass"><svg class="sicon" width="14" height="14"><use href="#i-bolt"/></svg> Стабільний FPS</div>
+    </div>
+  </section>
+
+  <!-- ================= stats ================= -->
+  <section class="stats reveal" aria-label="Коротко про клієнт">
+    <div class="stat glass"><b>20+</b><span>модулів у клієнті</span></div>
+    <div class="stat glass"><b>2</b><span>формати доступу</span></div>
+    <div class="stat glass"><b>24/7</b><span>підтримка в Telegram</span></div>
+    <div class="stat glass"><b>1.21.11</b><span>Fabric · актуальна версія</span></div>
+  </section>
+
+  <!-- ================= features ================= -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow"><i></i> Можливості</span>
+        <h2>Усе для комфортної гри</h2>
+        <p>Ми зібрали те, що робить гру приємнішою: від акуратного інтерфейсу до продуманих інструментів і стабільної роботи.</p>
+      </div>
+
+      <div class="cards">
+        <article class="card glass reveal">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-layers"/></svg></div>
+          <h3>Дизайн</h3>
+          <p>Мінімалістичний інтерфейс, який не відволікає від гри. Усе на своєму місці.</p>
+        </article>
+        <article class="card glass reveal d1">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-bolt"/></svg></div>
+          <h3>Продуктивність</h3>
+          <p>Оптимізація та стабільний FPS навіть на слабких ПК. Більше гри — менше просідань.</p>
+        </article>
+        <article class="card glass reveal d2">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-target"/></svg></div>
+          <h3>PvP-комфорт</h3>
+          <p>Налаштування, що допомагають тримати темп у бою й не втрачати концентрацію.</p>
+        </article>
+        <article class="card glass reveal">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-sliders"/></svg></div>
+          <h3>Гнучкість</h3>
+          <p>Модулі, профілі та гарячі клавіші — налаштуй клієнт саме під свій стиль гри.</p>
+        </article>
+        <article class="card glass reveal d1">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-shield"/></svg></div>
+          <h3>Сумісність</h3>
+          <p>Fabric 1.21.11, VoiceChat, кастомні скіни та медіа-інтеграції в одному клієнті.</p>
+        </article>
+        <article class="card glass reveal d2">
+          <div class="icon"><svg class="sicon" width="22" height="22"><use href="#i-refresh"/></svg></div>
+          <h3>Оновлення</h3>
+          <p>Регулярні апдейти та жива підтримка в Telegram. Клієнт розвивається разом із тобою.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= modules ================= -->
+  <section class="section" id="modules">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow"><i></i> Менеджер модулів</span>
+        <h2>Усе під контролем</h2>
+        <p>Зрозумілі категорії, акуратні списки й жодного зайвого. Обери розділ і подивись, що всередині.</p>
+      </div>
+
+      <div class="modules-panel glass reveal">
+        <div class="modules-head">
+          <div>
+            <h3>Модулі APX CLIENT</h3>
+            <p>Повний набір відкривається після активації ключа — прямо в самому моді.</p>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Категорії модулів">
+            <button class="tab active" role="tab" aria-selected="true" data-filter="all">Усі</button>
+            <button class="tab" role="tab" aria-selected="false" data-filter="visual">Візуал</button>
+            <button class="tab" role="tab" aria-selected="false" data-filter="world">Світ</button>
+            <button class="tab" role="tab" aria-selected="false" data-filter="auto">Автоматизація</button>
+            <button class="tab" role="tab" aria-selected="false" data-filter="social">Соціальне</button>
+          </div>
+        </div>
+
+        <div class="module-grid" id="moduleGrid">
+          <div class="module-group" data-cat="visual">
+            <h4><i></i> Візуал</h4>
+            <div class="module-row"><div><div class="module-name">Fullbright</div><div class="module-desc">Максимальна яскравість світу</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">NameTags</div><div class="module-desc">Інформація над гравцями</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">HUD</div><div class="module-desc">Кастомний інтерфейс</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Кастомні скіни</div><div class="module-desc">Свій вигляд для себе та друзів</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">3D-скін</div><div class="module-desc">Об'ємна модель скіна</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Медіа-інтеграції</div><div class="module-desc">YouTube · Twitch · Spotify</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+          </div>
+
+          <div class="module-group" data-cat="world">
+            <h4><i></i> Світ</h4>
+            <div class="module-row"><div><div class="module-name">Auto waypoints</div><div class="module-desc">Точки за кліком, чатом або подією</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Додати сервер</div><div class="module-desc">Швидке підключення</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Автопошук баз</div><div class="module-desc">Допомагає знайти потрібне</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Сповіщення про івенти</div><div class="module-desc">Не пропусти важливе</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Auto near</div><div class="module-desc">Показ гравців поруч</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+          </div>
+
+          <div class="module-group" data-cat="auto">
+            <h4><i></i> Автоматизація</h4>
+            <div class="module-row"><div><div class="module-name">Autobuy</div><div class="module-desc">Автоматична покупка</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Autoseller</div><div class="module-desc">Автоматичний продаж</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Auto med</div><div class="module-desc">Своєчасне використання</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Autoend</div><div class="module-desc">Допомога в складних ситуаціях</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Autowarden</div><div class="module-desc">Контроль небезпечних зон</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+          </div>
+
+          <div class="module-group" data-cat="social">
+            <h4><i></i> Соціальне</h4>
+            <div class="module-row"><div><div class="module-name">VoiceChat</div><div class="module-desc">Голосове спілкування</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Дзвінок другу</div><div class="module-desc">Швидкий зв'язок у грі</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Друзі</div><div class="module-desc">Список і статуси</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+            <div class="module-row"><div><div class="module-name">Система повідомлень</div><div class="module-desc">Акуратні сповіщення</div></div><span class="module-check"><svg class="sicon" width="11" height="11"><use href="#i-check"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="modules-foot"><i></i> 20 модулів · ключ вводиться в самому моді</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= pricing ================= -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow"><i></i> Тарифи</span>
+        <h2>Обери свій доступ</h2>
+        <p>FREE-версія безкоштовна. Ключ активує повний функціонал — без прихованих умов.</p>
+      </div>
+
+      <div class="pricing">
+        <article class="price glass reveal" id="freeCard">
+          <span class="badge free">FREE</span>
+          <div>
+            <h3>Старт</h3>
+            <p class="price-sub" style="margin-top:6px">Безкоштовний доступ до клієнта.</p>
+          </div>
+          <ul class="feature-list">
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Базовий набір модулів</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Оновлення клієнта</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Підтримка в Telegram</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Активація повного доступу ключем у самому моді</li>
+          </ul>
+          <div class="price-cta">
+            <a class="btn btn-glass full" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+              <svg class="sicon" width="15" height="15"><use href="#i-telegram"/></svg>
+              Отримати FREE
+            </a>
+          </div>
+          <div class="key-box">
+            <label>Активація повного доступу</label>
+            <p class="key-note">Ключ вводиться <b>в самому моді</b> (у грі), після чого відкриваються всі модулі. На сайті ключ не потрібен.</p>
+          </div>
+        </article>
+
+        <article class="price pro glass reveal d1">
+          <div class="price-glow" aria-hidden="true"></div>
+          <span class="badge pro">PRO</span>
+          <div>
+            <h3>Повний доступ</h3>
+            <p class="price-sub" style="margin-top:6px">Ключ, що відкриває всі модулі.</p>
+          </div>
+          <ul class="feature-list">
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Усі модулі без обмежень</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Пріоритетна підтримка</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Ранній доступ до оновлень</li>
+            <li><svg class="sicon" width="14" height="14"><use href="#i-check"/></svg> Кастомні скіни та VoiceChat</li>
+          </ul>
+          <div class="price-cta">
+            <button class="btn btn-primary full" id="buyPro" type="button">
+              <svg class="sicon" width="15" height="15"><use href="#i-lock"/></svg>
+              Отримати ключ
+            </button>
+            <p class="price-note">Ціна за запитом — узгоджуємо в Telegram. Отримуєш ключ → вводиш його в самому моді (у грі) → повний доступ відкрито.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= review ================= -->
+  <section class="section" id="review">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow"><i></i> Відео-огляд</span>
+        <h2>Подивись на APX CLIENT</h2>
+        <p>Короткий огляд інтерфейсу та можливостей клієнта — на сторінці огляду.</p>
+      </div>
+
+      <div class="video-panel glass reveal">
+        <a class="video-link" href="review.html" aria-label="Відкрити сторінку відео-огляду">
+          <span class="video-tag">Огляд</span>
+          <span class="play"><svg class="sicon" width="26" height="26"><use href="#i-play"/></svg></span>
+          <span class="video-caption">
+            <span><b>APX CLIENT у дії</b>Інтерфейс · модулі · геймплей</span>
+            <span>Відкрити огляд →</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="review-stats reveal">
+        <div class="review-stat glass"><b>20+</b><span>модулів</span></div>
+        <div class="review-stat glass"><b>2</b><span>версії доступу</span></div>
+        <div class="review-stat glass"><b>24/7</b><span>підтримка</span></div>
+        <div class="review-stat glass"><b>1.21.11</b><span>Fabric</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= cta ================= -->
+  <section class="section" id="start">
+    <div class="container">
+      <div class="cta-card glass reveal">
+        <h2>Готовий до гри?</h2>
+        <p>Почни з безкоштовної версії. Коли захочеш більше — активуй ключ і відкрий усі модулі APX CLIENT.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="#pricing">Отримати FREE</a>
+          <a class="btn btn-glass" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+            <svg class="sicon" width="15" height="15"><use href="#i-telegram"/></svg>
+            Написати в Telegram
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= footer ================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#top">
+          <span class="brand-mark">A</span>
+          <span class="brand-name">APX <em>CLIENT</em></span>
+        </a>
+        <p>Продуманий клієнт для комфортної гри в Minecraft. Мінімалістичний дизайн, стабільна робота та підтримка 24/7.</p>
+      </div>
+      <div>
+        <h5>Навігація</h5>
+        <div class="footer-links">
+          <a href="#features">Можливості</a>
+          <a href="#modules">Модулі</a>
+          <a href="#pricing">Тарифи</a>
+          <a href="review.html">Огляд</a>
+        </div>
+      </div>
+      <div>
+        <h5>Підтримка</h5>
+        <div class="footer-links">
+          <a href="https://t.me/yourchannel" target="_blank" rel="noopener">Telegram</a>
+          <a href="#pricing">Активація ключа</a>
+          <a href="#start">Почати гру</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> APX CLIENT. Усі права захищені.</span>
+      <span>Не є офіційним продуктом Mojang Studios.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= checkout modal ================= -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h3 id="modalTitle">Оформлення PRO</h3>
+      <button class="modal-close" type="button" data-close aria-label="Закрити">✕</button>
+    </div>
+    <p class="modal-sub">Обери спосіб оплати — і ми надішлемо ключ у Telegram. Ціну узгоджуємо індивідуально.</p>
+    <div class="pay-list">
+      <button class="pay" type="button" data-pay="USDT / Crypto"><span>USDT / Crypto</span><span>→</span></button>
+      <button class="pay" type="button" data-pay="Monobank"><span>Monobank (UAH)</span><span>→</span></button>
+      <button class="pay" type="button" data-pay="Картка"><span>Картка VISA / Mastercard</span><span>→</span></button>
+      <button class="pay" type="button" data-pay="Telegram CryptoBot"><span>Telegram CryptoBot</span><span>→</span></button>
+    </div>
+    <div class="pay-result" id="payResult" aria-live="polite"></div>
+    <a class="btn btn-primary full" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+      <svg class="sicon" width="15" height="15"><use href="#i-telegram"/></svg>
+      Написати в Telegram
+    </a>
+    <p class="modal-note">Ключ вводиться в самому моді (у грі), не на сайті.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const $  = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+
+  /* ---------- year ---------- */
+  const year = $('#year');
+  if (year) year.textContent = new Date().getFullYear();
+
+  /* ---------- nav ---------- */
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 16);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const burger = $('#burger');
+  const mobileMenu = $('#mobileMenu');
+  burger.addEventListener('click', () => {
+    const open = burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', String(open));
+  });
+  $$('#mobileMenu a').forEach(link => link.addEventListener('click', () => {
+    burger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+  }));
+
+  /* ---------- module tabs ---------- */
+  const tabs = $$('.tab');
+  const groups = $$('.module-group');
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    tabs.forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    const filter = tab.dataset.filter;
+    groups.forEach(group => {
+      group.hidden = filter !== 'all' && group.dataset.cat !== filter;
+    });
+  }));
+
+  /* ---------- activation key (вводиться в самому моді) ---------- */
+
+  /* ---------- checkout modal ---------- */
+  const modal = $('#modal');
+  const payResult = $('#payResult');
+  let lastFocused = null;
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const closeBtn = $('.modal-close', modal);
+    if (closeBtn) closeBtn.focus();
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  $('#buyPro').addEventListener('click', openModal);
+  $$('[data-close]', modal).forEach(el => el.addEventListener('click', closeModal));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+
+  $$('.pay').forEach(button => button.addEventListener('click', () => {
+    payResult.textContent = '✔ Обрано: ' + button.dataset.pay + '. Напиши в Telegram, щоб завершити замовлення.';
+  }));
+
+  /* ---------- toast ---------- */
+  let toastTimer = null;
+  function toast(message) {
+    const el = $('#toast');
+    el.textContent = message;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  const revealEls = $$('.reveal');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => observer.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
+})();
+</script>
+</body>
+</html>

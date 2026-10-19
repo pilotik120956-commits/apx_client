@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Огляд · APX CLIENT</title>
+<meta name="description" content="Відео-огляд APX CLIENT — інтерфейс, модулі та можливості клієнта.">
+<link rel="stylesheet" href="style.css">
+<style>
+  .review-body{display:flex;flex-direction:column;gap:22px;}
+  .review-meta{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+    margin-top:4px;
+  }
+  .review-meta span{
+    padding:7px 12px;border-radius:999px;font-size:11px;color:var(--muted);
+    border:1px solid var(--stroke);background:rgba(255,255,255,.04);
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .review-meta span i{
+    width:5px;height:5px;border-radius:50%;background:var(--green-bright);
+    box-shadow:0 0 8px var(--green-bright);
+  }
+  .review-body > .reveal:nth-child(2){transition-delay:.08s;}
+  .review-body > .reveal:nth-child(3){transition-delay:.16s;}
+</style>
+</head>
+<body>
+
+<!-- ================= SVG sprite ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-telegram" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<!-- ================= background ================= -->
+<div class="bg" aria-hidden="true">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+  <div class="grid-lines"></div>
+  <div class="noise"></div>
+</div>
+
+<!-- ================= nav ================= -->
+<div class="nav-wrap">
+  <div class="nav-shell">
+    <nav class="nav glass" id="nav">
+      <a class="brand" href="index.html" aria-label="APX CLIENT — на початок">
+        <span class="brand-mark">A</span>
+        <span class="brand-name">APX <em>CLIENT</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Можливості</a>
+        <a href="index.html#modules">Модулі</a>
+        <a href="index.html#pricing">Тарифи</a>
+        <a href="index.html">Головна</a>
+      </div>
+      <a class="btn btn-primary nav-cta" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+        <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
+        Telegram
+      </a>
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="mobile-menu glass" id="mobileMenu">
+      <a href="index.html#features">Можливості</a>
+      <a href="index.html#modules">Модулі</a>
+      <a href="index.html#pricing">Тарифи</a>
+      <a href="index.html">Головна</a>
+      <a class="btn btn-primary" href="https://t.me/yourchannel" target="_blank" rel="noopener">Telegram</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- ================= hero ================= -->
+  <section class="container review-hero">
+    <span class="eyebrow"><i></i> Відео-огляд</span>
+    <h1>APX CLIENT <span class="grad">у дії</span></h1>
+    <p>Подивись, як виглядає клієнт зсередини: інтерфейс, модулі та можливості — все коротко й по суті.</p>
+  </section>
+
+  <!-- ================= video ================= -->
+  <section class="container review-wrap">
+    <div class="review-body">
+      <div class="video-frame glass reveal">
+        <!-- ==================================================================
+             ВІДЕО-ОГЛЯД — ВСТАВ СВОЄ ПОСИЛАННЯ ТУТ
+             ------------------------------------------------------------------
+             Варіант 1 (YouTube): заміни весь блок <div class="video-slot">...
+             на цей рядок і підстав свій ID відео:
+
+             <iframe src="https://www.youtube.com/embed/ВСТАВ_ВДЕО_ID"
+                     title="Огляд мода" allowfullscreen
+                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+
+             Варіант 2 (файл mp4): поклади файл у папку mod-store і постав:
+
+             <video src="review.mp4" controls playsinline></video>
+
+             (заглушку .video-slot тоді можна видалити повністю)
+             ================================================================== -->
+        <div class="video-placeholder">
+          <span class="play-icon"><svg class="sicon" width="24" height="24" aria-hidden="true"><use href="#i-play"/></svg></span>
+          <h3>Відео-огляд буде тут</h3>
+          <p>посилання вставляється у коді сторінки<br>(review.html → блок з коментарем «ВІДЕО-ОГЛЯД»)</p>
+        </div>
+      </div>
+
+      <div class="review-meta reveal">
+        <span><i></i> Fabric 1.21.11</span>
+        <span><i></i> 20+ модулів</span>
+        <span><i></i> FREE + PRO</span>
+        <span><i></i> Підтримка 24/7</span>
+      </div>
+
+      <div class="review-actions reveal">
+        <a class="btn btn-primary" href="index.html#pricing">
+          Отримати FREE
+          <svg class="sicon" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg>
+        </a>
+        <a class="btn btn-glass" href="index.html#modules">Подивитись модулі</a>
+        <a class="btn btn-glass" href="https://t.me/yourchannel" target="_blank" rel="noopener">
+          <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
+          Написати в Telegram
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= footer ================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="margin-top:0;border-top:none;padding-top:0">
+      <span>© <span id="year">2026</span> APX CLIENT. Усі права захищені.</span>
+      <span>Не є офіційним продуктом Mojang Studios.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const $  = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+
+  const year = $('#year');
+  if (year) year.textContent = new Date().getFullYear();
+
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 16);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const burger = $('#burger');
+  const mobileMenu = $('#mobileMenu');
+  burger.addEventListener('click', () => {
+    const open = burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', String(open));
+  });
+  $$('#mobileMenu a').forEach(link => link.addEventListener('click', () => {
+    burger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+  }));
+
+  const revealEls = $$('.reveal');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => observer.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
+})();
+</script>
+</body>
+</html>
