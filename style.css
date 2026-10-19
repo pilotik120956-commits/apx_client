@@ -89,63 +89,275 @@ button{background:none;border:0;cursor:pointer;}
   display:grid;place-items:center;
 }
 
-/* ---- the hole itself ---- */
+/* ---- the hole itself (highly detailed, Ton 618 style) ---- */
 .intro-hole{
   position:relative;display:grid;place-items:center;
   width:0;height:0;
 }
+.intro-hole > *{
+  position:absolute;left:50%;top:50%;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.05);
+  opacity:0;pointer-events:none;
+}
+/* everything ignites together, then keeps living */
+.intro.is-arming .intro-hole > *{
+  animation:holeIgnite 1.5s cubic-bezier(.18,.72,.2,1) forwards;
+}
+@keyframes holeIgnite{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.05);}
+  55%{opacity:1;}
+  100%{opacity:var(--ho,.9);transform:translate(-50%,-50%) scale(1);}
+}
+
+/* --- lensed starfield: the starry backdrop warped around the mass --- */
+.intro-hole .hole-lensfield{
+  --ho:.55;
+  width:760px;height:760px;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(120,165,235,.16) 0%,transparent 42%),
+    repeating-conic-gradient(from 0deg,rgba(220,236,255,.5) 0deg 1.1deg,transparent 1.1deg 27deg);
+  -webkit-mask-image:radial-gradient(circle,transparent 27%,#000 34%,#000 54%,transparent 66%);
+  mask-image:radial-gradient(circle,transparent 27%,#000 34%,#000 54%,transparent 66%);
+  filter:blur(1.6px);
+  transform:translate(-50%,-50%) scale(.05) rotate(0deg);
+  --halt:rotate(0deg);
+}
+.intro.is-arming .intro-hole .hole-lensfield{
+  animation:holeIgnite 1.5s cubic-bezier(.18,.72,.2,1) forwards;
+}
+.intro.is-releasing .intro-hole .hole-lensfield{
+  opacity:.55;
+  animation:lensSwirl 26s linear infinite;
+}
+@keyframes lensSwirl{
+  from{transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+  to{transform:translate(-50%,-50%) scale(1) rotate(360deg);}
+}
+
+/* --- relativistic jets shooting out of the poles --- */
+.intro-hole .hole-jet{
+  --ho:.85;
+  border-radius:999px;width:3px;height:520px;
+  background:linear-gradient(to top,rgba(220,236,255,0),rgba(190,215,255,.55) 22%,rgba(255,255,255,.9) 48%,rgba(180,210,255,.4) 70%,transparent);
+  filter:blur(2.4px);
+  box-shadow:0 0 24px 4px rgba(150,190,255,.3);
+}
+.intro-hole .hole-jet.jet-up{
+  transform:translate(-50%,-50%) scale(.05) translateY(-300px);
+  --halt:translateY(-300px);
+}
+.intro-hole .hole-jet.jet-down{
+  transform:translate(-50%,-50%) scale(.05) translateY(300px) rotate(180deg);
+  --halt:translateY(300px) rotate(180deg);
+}
+.intro.is-releasing .intro-hole .hole-jet{animation:jetPulse 4.5s ease-in-out infinite;}
+.intro.is-releasing .intro-hole .hole-jet.jet-down{animation-delay:-2.25s;}
+@keyframes jetPulse{
+  0%,100%{opacity:.55;filter:blur(2.6px);}
+  50%{opacity:.95;filter:blur(1.8px);}
+}
+
+/* --- halo: photon-sphere bloom in two layers --- */
+.intro-hole .hole-halo{
+  --ho:.9;
+  width:420px;height:420px;
+  background:radial-gradient(circle,
+    transparent 30%,
+    rgba(190,215,255,.30) 40%,
+    rgba(130,175,240,.16) 47%,
+    transparent 58%);
+  filter:blur(14px);
+}
+.intro-hole .hole-halo.halo-2{
+  --ho:.7;
+  width:620px;height:620px;
+  background:radial-gradient(circle,
+    transparent 34%,
+    rgba(110,155,225,.16) 44%,
+    transparent 60%);
+  filter:blur(26px);
+}
+.intro.is-releasing .intro-hole .hole-halo{animation:haloBreath 5.2s ease-in-out infinite;}
+.intro.is-releasing .intro-hole .hole-halo.halo-2{animation-duration:6.8s;animation-delay:-1.4s;}
+@keyframes haloBreath{
+  0%,100%{opacity:.72;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.06);}
+}
+
+/* --- accretion disk: three rotating layers --- */
+.intro-hole .hole-disk{
+  --ho:.95;
+  border-radius:50%;
+  -webkit-mask-image:radial-gradient(circle,transparent 30%,#000 40%,#000 70%,transparent 82%);
+  mask-image:radial-gradient(circle,transparent 30%,#000 40%,#000 70%,transparent 82%);
+  transform-origin:50% 50%;
+  will-change:transform;
+}
+/* near side: the broad rotating band */
+.intro-hole .hole-disk.disk-front{
+  --ho:.95;
+  width:560px;height:560px;
+  transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30);
+  background:conic-gradient(from 0deg,
+    rgba(255,255,255,0) 0deg,
+    rgba(150,192,248,.55) 32deg,
+    rgba(255,255,255,.95) 62deg,
+    rgba(178,212,255,.6) 96deg,
+    rgba(255,255,255,.85) 140deg,
+    rgba(140,182,240,.45) 186deg,
+    rgba(255,255,255,.9) 224deg,
+    rgba(160,198,250,.5) 268deg,
+    rgba(255,255,255,.7) 310deg,
+    rgba(255,255,255,0) 360deg);
+  filter:blur(8px);
+}
+/* far side: lensed halo arcing above and below */
+.intro-hole .hole-disk.disk-back{
+  --ho:.6;
+  width:560px;height:560px;
+  transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30) scaleY(1.05);
+  background:conic-gradient(from 180deg,
+    rgba(255,255,255,0),
+    rgba(200,224,255,.55) 40deg,
+    rgba(255,255,255,.85) 90deg,
+    rgba(200,224,255,.5) 150deg,
+    rgba(255,255,255,0) 210deg);
+  filter:blur(16px);
+}
+/* inner ring: hottest, tightest, brightest */
+.intro-hole .hole-disk.disk-inner{
+  --ho:1;
+  width:360px;height:360px;
+  transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30);
+  background:conic-gradient(from 0deg,
+    rgba(255,255,255,.4),
+    rgba(255,255,255,1) 40deg,
+    rgba(214,232,255,.75) 110deg,
+    rgba(255,255,255,.95) 180deg,
+    rgba(220,238,255,.7) 250deg,
+    rgba(255,255,255,.9) 310deg,
+    rgba(255,255,255,.4) 360deg);
+  filter:blur(3.5px);
+}
+/* ignition that keeps each disk's elliptical tilt */
+.intro.is-arming .intro-hole .hole-disk.disk-front{animation:diskIgnite 1.5s cubic-bezier(.18,.72,.2,1) forwards;}
+.intro.is-arming .intro-hole .hole-disk.disk-inner{animation:diskIgniteTight 1.5s cubic-bezier(.18,.72,.2,1) forwards;}
+.intro.is-arming .intro-hole .hole-disk.disk-back{animation:diskIgniteBack 1.5s cubic-bezier(.18,.72,.2,1) forwards;}
+@keyframes diskIgnite{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30);}
+  55%{opacity:1;}
+  100%{opacity:.95;transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30);}
+}
+@keyframes diskIgniteTight{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30);}
+  55%{opacity:1;}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30);}
+}
+@keyframes diskIgniteBack{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.05) rotate(-21deg) scaleX(.30) scaleY(1.05);}
+  55%{opacity:.7;}
+  100%{opacity:.6;transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) scaleY(1.05);}
+}
+.intro.is-releasing .intro-hole .hole-disk.disk-front{animation:diskRotate 7.5s linear infinite;}
+.intro.is-releasing .intro-hole .hole-disk.disk-inner{animation:diskRotateTight 4.2s linear infinite;}
+.intro.is-releasing .intro-hole .hole-disk.disk-back{animation:diskRotateBack 11s linear infinite;}
+@keyframes diskRotate{
+  from{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) rotate(0deg);}
+  to{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) rotate(360deg);}
+}
+@keyframes diskRotateTight{
+  from{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) rotate(0deg);}
+  to{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) rotate(360deg);}
+}
+@keyframes diskRotateBack{
+  from{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) scaleY(1.05) rotate(360deg);}
+  to{transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30) scaleY(1.05) rotate(0deg);}
+}
+
+/* --- event horizon shadow: the absolute black disc --- */
+.intro-hole .hole-shadow{
+  --ho:1;
+  width:196px;height:196px;background:#000;
+  box-shadow:
+    0 0 22px 6px rgba(0,0,0,.95),
+    0 0 60px 18px rgba(6,10,22,.85),
+    inset 0 0 24px 8px rgba(0,0,0,1);
+}
+
+/* --- photon ring: razor-thin brilliant circle --- */
+.intro-hole .hole-photon{
+  --ho:1;
+  width:214px;height:214px;
+  border:1.6px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 0 10px 2px rgba(255,255,255,.85),
+    0 0 26px 6px rgba(190,215,255,.6),
+    0 0 60px 16px rgba(140,180,240,.35),
+    inset 0 0 18px 3px rgba(220,236,255,.5);
+}
+.intro.is-releasing .intro-hole .hole-photon{animation:photonPulse 2.6s ease-in-out infinite;}
+@keyframes photonPulse{
+  0%,100%{opacity:1;filter:brightness(1);}
+  50%{opacity:.88;filter:brightness(1.35);}
+}
+
+/* --- lensing arcs: light bent over the top and under the bottom --- */
+.intro-hole .hole-arc{
+  --ho:.75;
+  border-radius:50%;
+  border:2px solid transparent;
+  border-top-color:rgba(255,255,255,.85);
+  border-bottom-color:rgba(190,215,255,.6);
+  filter:blur(1.2px) drop-shadow(0 0 12px rgba(190,215,255,.5));
+}
+.intro-hole .hole-arc.arc-a{width:270px;height:270px;}
+.intro-hole .hole-arc.arc-b{width:320px;height:320px;--ho:.5;border-top-color:rgba(214,232,255,.6);border-bottom-color:rgba(160,198,250,.4);}
+.intro.is-releasing .intro-hole .hole-arc{animation:arcDrift 9s ease-in-out infinite alternate;}
+.intro.is-releasing .intro-hole .hole-arc.arc-b{animation-duration:13s;animation-delay:-3s;}
+@keyframes arcDrift{
+  from{transform:translate(-50%,-50%) scale(1) rotate(-4deg);}
+  to{transform:translate(-50%,-50%) scale(1.05) rotate(4deg);}
+}
+
+/* --- relativistic beaming: the approaching side is brighter --- */
+.intro-hole .hole-doppler{
+  --ho:.85;
+  width:560px;height:560px;
+  background:linear-gradient(100deg,
+    rgba(255,255,255,0) 34%,
+    rgba(255,255,255,.55) 48%,
+    rgba(255,255,255,.85) 52%,
+    rgba(255,255,255,0) 66%);
+  -webkit-mask-image:radial-gradient(circle,transparent 32%,#000 42%,#000 72%,transparent 84%);
+  mask-image:radial-gradient(circle,transparent 32%,#000 42%,#000 72%,transparent 84%);
+  filter:blur(10px);
+  transform:translate(-50%,-50%) scale(1) rotate(-21deg) scaleX(.30);
+  --halt:rotate(-21deg) scaleX(.30);
+}
+.intro.is-releasing .intro-hole .hole-doppler{animation:diskRotate 7.5s linear infinite;}
+
 .intro-core{
-  position:absolute;width:16px;height:16px;border-radius:50%;background:#000;
-  box-shadow:0 0 0 1px rgba(232,240,255,.55),0 0 60px 10px rgba(150,190,255,.4),0 0 140px 30px rgba(90,140,230,.22);
-  transform:scale(.02);opacity:0;
+  position:absolute;left:50%;top:50%;width:16px;height:16px;border-radius:50%;background:#000;
+  box-shadow:0 0 0 1px rgba(232,240,255,.6),0 0 60px 10px rgba(150,190,255,.45),0 0 140px 30px rgba(90,140,230,.25);
+  transform:translate(-50%,-50%) scale(.02);opacity:0;
 }
 .intro.is-arming .intro-core{animation:coreGrow 1.05s cubic-bezier(.2,.8,.2,1) forwards;}
 @keyframes coreGrow{
-  0%{transform:scale(.02);opacity:0;}
+  0%{transform:translate(-50%,-50%) scale(.02);opacity:0;}
   40%{opacity:1;}
-  100%{transform:scale(1);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
 }
-/* accretion disk */
-.intro-disk{
-  position:absolute;width:280px;height:280px;border-radius:50%;
-  opacity:0;transform:rotate(-22deg) scaleX(.34);
-  background:conic-gradient(from 0deg,
-    rgba(120,170,255,0), rgba(150,195,255,.5), rgba(255,255,255,.85),
-    rgba(150,195,255,.5), rgba(120,170,255,0), rgba(255,255,255,.6),
-    rgba(120,170,255,0));
-  filter:blur(10px);
-  mask-image:radial-gradient(circle,transparent 34%,#000 46%,#000 68%,transparent 78%);
-  -webkit-mask-image:radial-gradient(circle,transparent 34%,#000 46%,#000 68%,transparent 78%);
-}
-.intro.is-arming .intro-disk{animation:diskIn 1.3s ease-out .12s forwards;}
-@keyframes diskIn{
-  from{opacity:0;transform:rotate(-22deg) scaleX(.34) scale(.5);}
-  to{opacity:.95;transform:rotate(-22deg) scaleX(.34) scale(1);}
-}
-.intro.is-releasing .intro-disk{animation:diskSpin 6s linear .2s infinite;}
-@keyframes diskSpin{
-  from{transform:rotate(-22deg) scaleX(.34) scale(1.05);}
-  to{transform:rotate(338deg) scaleX(.34) scale(1.05);}
-}
-/* gravitational lensing halo */
-.intro-lens{
-  position:absolute;width:210px;height:210px;border-radius:50%;opacity:0;
-  box-shadow:inset 0 0 40px 8px rgba(190,215,255,.28),0 0 90px 20px rgba(120,165,235,.2);
-  border:1px solid rgba(220,236,255,.18);
-}
-.intro.is-arming .intro-lens{animation:lensIn 1.2s ease-out .3s forwards;}
-@keyframes lensIn{from{opacity:0;transform:scale(.6);}to{opacity:1;transform:scale(1);}}
 
 .intro-ring{
-  position:absolute;width:20px;height:20px;border-radius:50%;
+  position:absolute;left:50%;top:50%;width:20px;height:20px;border-radius:50%;
   border:1.5px solid rgba(224,238,255,.85);opacity:0;
 }
 .intro.is-arming .intro-ring{animation:holeRing 1.5s cubic-bezier(.16,.68,.24,1) .25s forwards;}
 .intro.is-arming .intro-ring.ring-2{animation-delay:.5s;}
 @keyframes holeRing{
-  0%{transform:scale(1);opacity:.85;}
+  0%{transform:translate(-50%,-50%) scale(1);opacity:.85;}
   70%{opacity:.22;}
-  100%{transform:scale(140);opacity:0;}
+  100%{transform:translate(-50%,-50%) scale(140);opacity:0;}
 }
 
 /* ---- badge above the hole ---- */
@@ -460,6 +672,20 @@ h2{font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.05;letter-spacing:-.035em;fo
 }
 .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06);}
 .nav-cta{padding:10px 16px;border-radius:12px;font-size:13px;}
+.sound-toggle{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  border:1px solid var(--stroke);background:rgba(255,255,255,.05);
+  color:var(--text);margin-left:6px;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.sound-toggle:hover{background:rgba(255,255,255,.1);border-color:var(--stroke-strong);}
+.sound-toggle.is-muted{color:var(--muted-2);}
+.sound-toggle .sicon{stroke:currentColor;}
+.sound-toggle:not(.is-muted) .sicon{animation:soundPulse 2.4s ease-in-out infinite;}
+@keyframes soundPulse{
+  0%,100%{opacity:.95;}
+  50%{opacity:.6;}
+}
 .burger{
   display:none;width:40px;height:40px;border-radius:11px;border:1px solid var(--stroke);
   background:rgba(255,255,255,.05);place-items:center;

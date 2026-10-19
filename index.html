@@ -30,6 +30,8 @@
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8L12 3z"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9v6h3.5L12 19V5L7.5 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h3.5L12 19V5L7.5 9H4z"/><path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/></symbol>
 </svg>
 
 <!-- ================= background ================= -->
@@ -61,11 +63,38 @@
     </div>
 
     <div class="intro-hole">
-      <div class="intro-disk"></div>
+      <!-- lensed starfield bending around the mass -->
+      <div class="hole-lensfield"></div>
+
+      <!-- relativistic jets -->
+      <div class="hole-jet jet-up"></div>
+      <div class="hole-jet jet-down"></div>
+
+      <!-- outer glow / photon sphere halo -->
+      <div class="hole-halo"></div>
+      <div class="hole-halo halo-2"></div>
+
+      <!-- accretion disk: far side (lensed above/below) -->
+      <div class="hole-disk disk-back"></div>
+      <!-- accretion disk: near side -->
+      <div class="hole-disk disk-front"></div>
+      <!-- hot inner band -->
+      <div class="hole-disk disk-inner"></div>
+
+      <!-- event horizon shadow -->
+      <div class="hole-shadow"></div>
+      <!-- photon ring: the sharp bright circle -->
+      <div class="hole-photon"></div>
+      <!-- gravitational lensing arcs -->
+      <div class="hole-arc arc-a"></div>
+      <div class="hole-arc arc-b"></div>
+
+      <!-- doppler brightening (relativistic beaming) -->
+      <div class="hole-doppler"></div>
+
       <div class="intro-core" id="introCore"></div>
       <div class="intro-ring"></div>
       <div class="intro-ring ring-2"></div>
-      <div class="intro-lens"></div>
     </div>
 
     <div class="intro-pull" id="introPull">
@@ -128,7 +157,10 @@
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
         Telegram
       </a>
-      <button class="burger intro-item" style="--io:4" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
+      <button class="sound-toggle intro-item" style="--io:4" id="soundToggle" type="button" aria-pressed="true" aria-label="Вимкнути звук">
+        <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-sound"/></svg>
+      </button>
+      <button class="burger intro-item" style="--io:5" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
     </nav>
@@ -745,6 +777,274 @@
     }
   });
 
+  /* ---------- cinematic sound (Web Audio, no external files) ---------- */
+  const Sound = (() => {
+    let ctx = null, master = null, enabled = true, started = false;
+    let droneNodes = [];
+
+    function supported() {
+      return !!(window.AudioContext || window.webkitAudioContext);
+    }
+
+    function init() {
+      if (ctx || !supported()) return ctx;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = enabled ? 1 : 0;
+
+      // gentle limiter so the bass slam never clips
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -12;
+      comp.knee.value = 22;
+      comp.ratio.value = 10;
+      comp.attack.value = 0.004;
+      comp.release.value = 0.22;
+      master.connect(comp);
+      comp.connect(ctx.destination);
+      return ctx;
+    }
+
+    function resume() {
+      if (!ctx) init();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+    }
+
+    function noiseBuffer(seconds) {
+      const len = Math.floor(ctx.sampleRate * seconds);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        const white = Math.random() * 2 - 1;
+        // brown-ish noise: deeper, more cinematic than white
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.2;
+      }
+      return buf;
+    }
+
+    /* deep rising rumble as the singularity forms */
+    function playForming(duration) {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+
+      // sub-bass swell
+      const o1 = ctx.createOscillator();
+      o1.type = 'sine';
+      o1.frequency.setValueAtTime(26, t);
+      o1.frequency.exponentialRampToValueAtTime(58, t + duration);
+
+      const g1 = ctx.createGain();
+      g1.gain.setValueAtTime(0.0001, t);
+      g1.gain.exponentialRampToValueAtTime(0.5, t + duration * 0.85);
+      g1.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.5);
+
+      // shimmering high partial
+      const o2 = ctx.createOscillator();
+      o2.type = 'triangle';
+      o2.frequency.setValueAtTime(220, t);
+      o2.frequency.exponentialRampToValueAtTime(660, t + duration);
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.0001, t);
+      g2.gain.exponentialRampToValueAtTime(0.05, t + duration * 0.8);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.4);
+
+      // filtered noise sweep — the "wind" of accretion
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(duration + 1);
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.Q.value = 0.9;
+      bp.frequency.setValueAtTime(140, t);
+      bp.frequency.exponentialRampToValueAtTime(1400, t + duration);
+      const gn = ctx.createGain();
+      gn.gain.setValueAtTime(0.0001, t);
+      gn.gain.exponentialRampToValueAtTime(0.16, t + duration * 0.9);
+      gn.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.4);
+
+      o1.connect(g1); o2.connect(g2); src.connect(bp); bp.connect(gn);
+      g1.connect(master); g2.connect(master); gn.connect(master);
+      o1.start(t); o2.start(t); src.start(t);
+      const end = t + duration + 1;
+      o1.stop(end); o2.stop(end); src.stop(end);
+      droneNodes.push(o1, o2, src);
+    }
+
+    /* huge bass slam — the event horizon snaps open */
+    function playSlam() {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(150, t);
+      o.frequency.exponentialRampToValueAtTime(32, t + 0.5);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.85, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+
+      const shaper = ctx.createWaveShaper();
+      const curve = new Float32Array(1024);
+      for (let i = 0; i < 1024; i++) {
+        const x = (i / 1023) * 2 - 1;
+        curve[i] = Math.tanh(x * 3.2);
+      }
+      shaper.curve = curve;
+
+      // impact noise transient
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(1.2);
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(3000, t);
+      lp.frequency.exponentialRampToValueAtTime(180, t + 0.9);
+      const gn = ctx.createGain();
+      gn.gain.setValueAtTime(0.4, t);
+      gn.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+
+      o.connect(shaper); shaper.connect(g); g.connect(master);
+      src.connect(lp); lp.connect(gn); gn.connect(master);
+      o.start(t); src.start(t);
+      o.stop(t + 1.6); src.stop(t + 1.2);
+    }
+
+    /* glassy whoosh — a feature flies out of the hole */
+    function playWhoosh(index) {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      const base = 420 + index * 46;
+
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(base * 1.9, t);
+      o.frequency.exponentialRampToValueAtTime(base * 0.6, t + 0.42);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.14, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(0.6);
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.setValueAtTime(900, t);
+      hp.frequency.exponentialRampToValueAtTime(2600, t + 0.4);
+      const gn = ctx.createGain();
+      gn.gain.setValueAtTime(0.0001, t);
+      gn.gain.exponentialRampToValueAtTime(0.09, t + 0.04);
+      gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+
+      o.connect(g); g.connect(master);
+      src.connect(hp); hp.connect(gn); gn.connect(master);
+      o.start(t); src.start(t);
+      o.stop(t + 0.5); src.stop(t + 0.62);
+    }
+
+    /* steady deep drone that lives under the showcase */
+    function startDrone() {
+      if (!ctx || started) return;
+      started = true;
+      const t = ctx.currentTime;
+
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = 41.2; // low E
+      const o2 = ctx.createOscillator();
+      o2.type = 'sine';
+      o2.frequency.value = 61.7; // fifth above, paired for beating
+      const o3 = ctx.createOscillator();
+      o3.type = 'triangle';
+      o3.frequency.value = 123.5;
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.075, t + 2.2);
+
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.09;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 0.028;
+      lfo.connect(lfoGain); lfoGain.connect(g.gain);
+
+      const o3g = ctx.createGain();
+      o3g.gain.value = 0.12;
+
+      o.connect(g); o2.connect(g); o3.connect(o3g); o3g.connect(g); g.connect(master);
+      o.start(t); o2.start(t); o3.start(t); lfo.start(t);
+      droneNodes.push(o, o2, o3, lfo);
+    }
+
+    function stopAll() {
+      droneNodes.forEach(n => { try { n.stop(); } catch (e) {} });
+      droneNodes = [];
+      started = false;
+    }
+
+    function setEnabled(next) {
+      enabled = next;
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setTargetAtTime(enabled ? 1 : 0, t, 0.08);
+      if (enabled) resume();
+    }
+
+    return {
+      supported,
+      init,
+      resume,
+      playForming,
+      playSlam,
+      playWhoosh,
+      startDrone,
+      stopAll,
+      setEnabled,
+      isEnabled: () => enabled
+    };
+  })();
+
+  // mute / unmute control
+  const soundBtn = $('#soundToggle');
+  let soundPref = true;
+  try { soundPref = localStorage.getItem('apx_sound') !== 'off'; } catch (e) {}
+  Sound.setEnabled(soundPref);
+  if (soundBtn) {
+    const paintSound = () => {
+      soundBtn.setAttribute('aria-pressed', String(Sound.isEnabled()));
+      soundBtn.setAttribute('aria-label', Sound.isEnabled() ? 'Вимкнути звук' : 'Увімкнути звук');
+      soundBtn.classList.toggle('is-muted', !Sound.isEnabled());
+      const use = soundBtn.querySelector('use');
+      if (use) use.setAttribute('href', Sound.isEnabled() ? '#i-sound' : '#i-mute');
+    };
+    paintSound();
+    soundBtn.addEventListener('click', () => {
+      const next = !Sound.isEnabled();
+      Sound.setEnabled(next);
+      try { localStorage.setItem('apx_sound', next ? 'on' : 'off'); } catch (e) {}
+      if (next) { Sound.resume(); Sound.startDrone(); }
+      paintSound();
+    });
+  }
+
+  // browsers block audio until the user interacts: arm on first gesture
+  if (soundPref) {
+    const armAudio = () => {
+      if (!Sound.supported()) return;
+      Sound.init();
+      Sound.resume();
+      window.removeEventListener('pointerdown', armAudio);
+      window.removeEventListener('keydown', armAudio);
+      window.removeEventListener('touchstart', armAudio);
+    };
+    window.addEventListener('pointerdown', armAudio, { once: false });
+    window.addEventListener('keydown', armAudio, { once: false });
+    window.addEventListener('touchstart', armAudio, { once: false });
+  }
+
   /* ---------- black hole intro (cinematic) ---------- */
   const intro = $('#intro');
   const heroSection = $('.hero');
@@ -793,6 +1093,14 @@
       }
     }
 
+    // a soft chime per flying feature, timed to each chip's launch
+    function scheduleFeatureSounds() {
+      if (!Sound.isEnabled() || !Sound.supported()) return;
+      chips.forEach((chip, i) => {
+        setTimeout(() => Sound.playWhoosh(i), 40 + i * 150);
+      });
+    }
+
     function finishIntro() {
       intro.classList.add('is-done');
       document.documentElement.classList.remove('intro-lock', 'intro-play');
@@ -808,12 +1116,22 @@
       requestAnimationFrame(() => {
         // 1) the black hole ignites and swallows the screen
         intro.classList.add('is-arming');
+        if (Sound.isEnabled() && Sound.supported()) {
+          Sound.init();
+          Sound.resume();
+          Sound.playForming(1.2);
+        }
 
         // 2) features burst out of the hole, one after another
         setTimeout(() => {
           intro.classList.add('is-releasing', 'is-void-out');
           spawnBurst();
           intro.classList.remove('is-arming');
+          if (Sound.isEnabled() && Sound.supported()) {
+            Sound.playSlam();
+            Sound.startDrone();
+          }
+          scheduleFeatureSounds();
         }, 1150);
 
         // 3) the whole view is pulled/dragged toward the main content
