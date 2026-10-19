@@ -63,6 +63,9 @@
     </div>
 
     <div class="intro-hole">
+      <!-- real-time WebGL raytraced black hole -->
+      <canvas class="hole-gl" id="holeGL" aria-hidden="true"></canvas>
+
       <!-- lensed starfield bending around the mass -->
       <div class="hole-lensfield"></div>
 
@@ -548,6 +551,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="hole-gl.js"></script>
 <script>
 (function(){
   "use strict";
@@ -1116,8 +1120,8 @@
       requestAnimationFrame(() => {
         // 1) the black hole ignites and swallows the screen
         intro.classList.add('is-arming');
-        if (Sound.isEnabled() && Sound.supported()) {
-          Sound.init();
+        if (window.HoleGL) { window.HoleGL.setReveal(1); window.HoleGL.start(); }
+        if (Sound.isEnabled() && Sound.supported()) {          Sound.init();
           Sound.resume();
           Sound.playForming(1.2);
         }
@@ -1142,9 +1146,11 @@
           window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
           document.body.classList.add('intro-glide');
           intro.classList.add('is-leaving');
+          if (window.HoleGL) window.HoleGL.setReveal(0);
           setTimeout(() => {
             document.body.classList.remove('intro-glide');
             finishIntro();
+            if (window.HoleGL) window.HoleGL.stop();
           }, 900);
         }, 3050);
       });

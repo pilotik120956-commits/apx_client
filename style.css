@@ -94,6 +94,20 @@ button{background:none;border:0;cursor:pointer;}
   position:relative;display:grid;place-items:center;
   width:0;height:0;
 }
+/* WebGL raytraced hole: fills the viewport, sits behind the CSS accents */
+.intro-hole .hole-gl{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:100vw;height:100vh;
+  width:100svh;height:100svh;
+  min-width:100vw;min-height:100vh;
+  border-radius:0;
+  opacity:0;
+  transition:opacity 1.1s var(--ease);
+  mix-blend-mode:screen;
+  z-index:0;
+}
+.intro.is-arming .intro-hole .hole-gl,
+.intro.is-releasing .intro-hole .hole-gl{opacity:1;}
 .intro-hole > *{
   position:absolute;left:50%;top:50%;border-radius:50%;
   transform:translate(-50%,-50%) scale(.05);
