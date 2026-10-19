@@ -1580,3 +1580,35 @@ html:not(.theme-no-anim) .bg{
   border:1px solid rgba(var(--accent-rgb),.36);
 }
 .modal-steps li b{color:var(--accent-soft);font-weight:600;}
+
+/* ============================================================
+   Testimonials
+   ============================================================ */
+.quotes{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.quote{
+  position:relative;padding:24px 22px;border-radius:22px;
+  display:flex;flex-direction:column;gap:16px;
+  transition:transform .35s var(--ease),border-color .35s var(--ease);
+}
+.quote:hover{transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.3);}
+.q-mark{color:rgba(var(--accent-rgb),.5);flex:0 0 auto;}
+.quote blockquote{
+  font-size:14.5px;line-height:1.65;color:var(--text);margin:0;
+}
+.quote figcaption{
+  display:flex;align-items:center;gap:11px;margin-top:auto;
+  padding-top:14px;border-top:1px solid var(--stroke);
+}
+.q-ava{
+  flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:13px;font-weight:700;color:var(--accent-soft);
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.34),rgba(var(--accent-rgb),.12));
+  border:1px solid rgba(var(--accent-rgb),.34);
+}
+.quote figcaption span:last-child{display:flex;flex-direction:column;line-height:1.25;min-width:0;}
+.quote figcaption b{font-size:13px;font-weight:600;color:var(--text);}
+.quote figcaption i{font-style:normal;font-size:11px;color:var(--muted-2);}
+@media (max-width:900px){ .quotes{grid-template-columns:1fr;} }
