@@ -393,8 +393,10 @@ void main(){
     // render below native resolution for performance, then let CSS upscale
     dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     const scale = 0.85;
-    W = Math.max(2, Math.round(canvas.clientWidth * dpr * scale));
-    H = Math.max(2, Math.round(canvas.clientHeight * dpr * scale));
+    const cw = canvas.clientWidth || window.innerWidth;
+    const ch = canvas.clientHeight || window.innerHeight;
+    W = Math.max(2, Math.round(cw * dpr * scale));
+    H = Math.max(2, Math.round(ch * dpr * scale));
     if (canvas.width !== W || canvas.height !== H) {
       canvas.width = W;
       canvas.height = H;
@@ -434,6 +436,9 @@ void main(){
       running = true;
       t0 = performance.now();
       revealTarget = 1;
+      // size the drawing buffer before the first frame so there is never a
+      // flash of the default 300x150 canvas
+      resize();
       raf = requestAnimationFrame(frame);
     },
     setReveal(v) { revealTarget = v; },
