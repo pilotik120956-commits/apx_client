@@ -200,9 +200,21 @@
     ctx.closePath();
   }
 
-  const ACCENT = "110,132,180";   // --accent family, dimmed
-  const BRIGHT = "146,164,206";
-  const SOFT   = "172,188,222";
+  // palette — read from the active theme so the canvas follows the theme picker
+  let ACCENT = "110,132,180";
+  let BRIGHT = "146,164,206";
+  let SOFT   = "172,188,222";
+  function readPalette() {
+    const cs = getComputedStyle(document.documentElement);
+    ACCENT = (cs.getPropertyValue('--canvas-tint').trim()   || ACCENT);
+    BRIGHT = (cs.getPropertyValue('--canvas-bright').trim() || BRIGHT);
+    SOFT   = (cs.getPropertyValue('--canvas-soft').trim()   || SOFT);
+  }
+  readPalette();
+  document.addEventListener('apxtheme', () => {
+    readPalette();
+    if (reduce) draw(0);
+  });
 
   function drawShardCode(sh, t) {
     // column code across the whole pane — the shard's own clip keeps it inside

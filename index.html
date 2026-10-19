@@ -6,6 +6,7 @@
 <title>APX CLIENT — Minecraft, без компромісів</title>
 <meta name="description" content="APX CLIENT — продуманий інтерфейс, стабільна робота та повний набір модулів для комфортної гри в Minecraft.">
 <link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
 </head>
 <body>
 
@@ -160,6 +161,7 @@
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-telegram"/></svg>
         Telegram
       </a>
+      <span id="themeSlot" data-theme-slot></span>
       <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Вимкнути звук">
         <svg class="sicon" width="15" height="15" aria-hidden="true"><use href="#i-sound"/></svg>
       </button>
@@ -172,6 +174,10 @@
       <a href="#modules">Модулі</a>
       <a href="#pricing">Тарифи</a>
       <a href="review.html">Огляд</a>
+      <div class="mobile-theme">
+        <span>Тема оформлення</span>
+        <span id="themeSlotMobile" data-theme-slot></span>
+      </div>
       <a class="btn btn-primary" href="https://t.me/yourchannel" target="_blank" rel="noopener">Telegram</a>
     </div>
   </div>
