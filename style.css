@@ -123,6 +123,13 @@ button{background:none;border:0;cursor:pointer;}
   100%{opacity:var(--ho,.9);transform:translate(-50%,-50%) scale(1);}
 }
 
+/* when the real WebGL raytracer is running, the CSS layers step aside */
+.intro.has-gl .intro-hole > *:not(.hole-gl){
+  opacity:0 !important;
+  animation:none !important;
+  transition:opacity .6s var(--ease);
+}
+
 /* --- lensed starfield: the starry backdrop warped around the mass --- */
 .intro-hole .hole-lensfield{
   --ho:.55;

@@ -65,7 +65,6 @@
     <div class="intro-hole">
       <!-- real-time WebGL raytraced black hole -->
       <canvas class="hole-gl" id="holeGL" aria-hidden="true"></canvas>
-
       <!-- lensed starfield bending around the mass -->
       <div class="hole-lensfield"></div>
 
@@ -1120,7 +1119,7 @@
       requestAnimationFrame(() => {
         // 1) the black hole ignites and swallows the screen
         intro.classList.add('is-arming');
-        if (window.HoleGL) { window.HoleGL.setReveal(1); window.HoleGL.start(); }
+        if (window.HoleGL) { intro.classList.add('has-gl'); window.HoleGL.setReveal(1); window.HoleGL.start(); }
         if (Sound.isEnabled() && Sound.supported()) {          Sound.init();
           Sound.resume();
           Sound.playForming(1.2);
