@@ -2,18 +2,18 @@
    APX CLIENT — liquid glass UI
    ============================================================ */
 :root{
-  --bg:#05070f;
-  --text:#f4f6fb;
-  --muted:#a3acbf;
-  --muted-2:#6c7486;
-  --accent:#9db4e6;
-  --accent-bright:#c9d6f0;
-  --accent-soft:#e2e9f7;
-  --stroke:rgba(232,240,255,.16);
-  --stroke-strong:rgba(236,243,255,.34);
-  --glass:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 44%,rgba(150,180,235,.06));
-  --glass-dark:linear-gradient(150deg,rgba(11,15,29,.66),rgba(3,5,12,.56));
-  --shadow:0 26px 80px rgba(0,0,0,.58);
+  --bg:#03040a;
+  --text:#eef2fa;
+  --muted:#8e97ac;
+  --muted-2:#5b6375;
+  --accent:#7f97cf;
+  --accent-bright:#a9bade;
+  --accent-soft:#c9d4ea;
+  --stroke:rgba(226,236,255,.12);
+  --stroke-strong:rgba(232,241,255,.26);
+  --glass:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02) 44%,rgba(130,160,220,.04));
+  --glass-dark:linear-gradient(150deg,rgba(8,11,22,.72),rgba(2,3,9,.64));
+  --shadow:0 26px 80px rgba(0,0,0,.66);
   --radius:26px;
   --nav-height:64px;
   --container:1180px;
@@ -41,18 +41,18 @@ button{background:none;border:0;cursor:pointer;}
 /* ============ background ============ */
 .bg{
   position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:
-    radial-gradient(1000px 700px at 12% -5%,rgba(110,145,215,.20),transparent 60%),
-    radial-gradient(900px 700px at 92% 8%,rgba(16,26,52,.55),transparent 62%),
-    radial-gradient(1200px 900px at 50% 110%,rgba(24,36,68,.32),transparent 70%),
-    #04060e;
+    radial-gradient(1000px 700px at 12% -5%,rgba(78,105,168,.13),transparent 60%),
+    radial-gradient(900px 700px at 92% 8%,rgba(10,16,34,.62),transparent 62%),
+    radial-gradient(1200px 900px at 50% 110%,rgba(14,22,44,.34),transparent 70%),
+    #020308;
 }
 .orb{
-  position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.34;
   animation:orbFloat 20s var(--ease) infinite alternate;will-change:transform;
 }
-.orb-a{width:520px;height:520px;left:-140px;top:-100px;background:radial-gradient(circle,rgba(180,205,245,.28),transparent 66%);}
-.orb-b{width:620px;height:620px;right:-180px;top:16%;background:radial-gradient(circle,rgba(30,52,96,.42),transparent 66%);animation-delay:-7s;}
-.orb-c{width:720px;height:720px;left:28%;bottom:-400px;background:radial-gradient(circle,rgba(18,30,60,.5),transparent 66%);animation-delay:-13s;}
+.orb-a{width:520px;height:520px;left:-140px;top:-100px;background:radial-gradient(circle,rgba(120,150,205,.18),transparent 66%);}
+.orb-b{width:620px;height:620px;right:-180px;top:16%;background:radial-gradient(circle,rgba(20,34,66,.32),transparent 66%);animation-delay:-7s;}
+.orb-c{width:720px;height:720px;left:28%;bottom:-400px;background:radial-gradient(circle,rgba(12,20,42,.4),transparent 66%);animation-delay:-13s;}
 @keyframes orbFloat{
   from{transform:translate3d(0,0,0) scale(1);}
   to{transform:translate3d(44px,-34px,0) scale(1.08);}
@@ -60,20 +60,20 @@ button{background:none;border:0;cursor:pointer;}
 .grid-lines{
   position:absolute;inset:0;
   background-image:
-    linear-gradient(rgba(232,240,255,.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(232,240,255,.05) 1px,transparent 1px);
+    linear-gradient(rgba(232,240,255,.032) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(232,240,255,.032) 1px,transparent 1px);
   background-size:72px 72px;
   -webkit-mask-image:radial-gradient(ellipse at 50% 34%,#000 0%,transparent 76%);
   mask-image:radial-gradient(ellipse at 50% 34%,#000 0%,transparent 76%);
-  opacity:.75;
+  opacity:.5;
 }
 .noise{
   position:absolute;inset:0;opacity:.035;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
-.stars{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.9;}
+.stars{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.62;}
 /* shattered-glass layer: cracks, and matrix code visible through the shards */
-.shards{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.85;mix-blend-mode:screen;}
+.shards{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.4;mix-blend-mode:screen;}
 
 /* ============ black hole intro (cinematic) ============ */
 .intro{

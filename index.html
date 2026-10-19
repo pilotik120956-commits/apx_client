@@ -1044,10 +1044,101 @@
       src.start(t); src.stop(t + 0.05);
     }
 
+    /* ---- calm ambient music: slow pads, warm bass, sparse bells ---- */
+    // A minor-ish progression, played very slowly. Everything is synthesised,
+    // so there is no sample and therefore no licensing question at all.
+    let musicOn = false, musicTimer = null, musicStep = 0, musicNodes = [];
+
+    // chord voicings (Hz) — soft, open, no dissonance
+    const PROG = [
+      [130.81, 196.00, 261.63, 329.63], // C   maj
+      [110.00, 164.81, 261.63, 329.63], // A   min
+      [87.31,  174.61, 261.63, 349.23], // F   maj
+      [98.00,  146.83, 246.94, 293.66], // G   maj
+    ];
+    const BELLS = [523.25, 587.33, 659.25, 783.99, 880.00];
+
+    function playPad(freqs) {
+      const t = ctx.currentTime;
+      const dur = 9.0;
+      freqs.forEach((f, i) => {
+        const o = ctx.createOscillator();
+        o.type = i === 0 ? 'sine' : 'triangle';
+        o.frequency.value = f;
+        // slight detune between voices for a wide, warm pad
+        o.detune.value = (i - 1.5) * 6;
+        const g = ctx.createGain();
+        const vol = (i === 0 ? 0.05 : 0.026);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(vol, t + 2.4);
+        g.gain.linearRampToValueAtTime(0.0001, t + dur);
+        // low-pass softens the triangle edges into a pad
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 900;
+        o.connect(lp); lp.connect(g); g.connect(master);
+        o.start(t); o.stop(t + dur + 0.1);
+        musicNodes.push(o);
+      });
+    }
+
+    function playBell() {
+      const t = ctx.currentTime;
+      const f = BELLS[(Math.random() * BELLS.length) | 0];
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.028, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+      // a quiet octave-up shimmer gives it a glassy tail
+      const o2 = ctx.createOscillator();
+      o2.type = 'sine';
+      o2.frequency.value = f * 2;
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.0001, t);
+      g2.gain.linearRampToValueAtTime(0.008, t + 0.02);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t + 2.0);
+      o.connect(g); g.connect(master);
+      o2.connect(g2); g2.connect(master);
+      o.start(t); o.stop(t + 3.4);
+      o2.start(t); o2.stop(t + 2.2);
+      musicNodes.push(o, o2);
+    }
+
+    function musicTick() {
+      if (!musicOn) return;
+      const chord = PROG[musicStep % PROG.length];
+      playPad(chord);
+      // a bell every other bar, at a random moment inside it
+      if (musicStep % 2 === 0) {
+        setTimeout(() => { if (musicOn) playBell(); }, 1500 + Math.random() * 4000);
+      }
+      musicStep++;
+      // each chord lasts ~9.5s: very slow, very calm
+      musicTimer = setTimeout(musicTick, 9500);
+    }
+
+    function startMusic() {
+      if (!ctx || musicOn) return;
+      musicOn = true;
+      musicStep = 0;
+      musicTick();
+    }
+
+    function stopMusic() {
+      musicOn = false;
+      if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
+      musicNodes.forEach(n => { try { n.stop(); } catch (e) {} });
+      musicNodes = [];
+    }
+
     function stopAll() {
       droneNodes.forEach(n => { try { n.stop(); } catch (e) {} });
       droneNodes = [];
       stopTerminal();
+      stopMusic();
       started = false;
     }
 
@@ -1070,6 +1161,8 @@
       startDrone,
       startTerminal,
       stopTerminal,
+      startMusic,
+      stopMusic,
       playClick,
       stopAll,
       setEnabled,
@@ -1095,7 +1188,7 @@
       const next = !Sound.isEnabled();
       Sound.setEnabled(next);
       try { localStorage.setItem('apx_sound', next ? 'on' : 'off'); } catch (e) {}
-      if (next) { Sound.resume(); Sound.startDrone(); Sound.startTerminal(); }
+      if (next) { Sound.resume(); Sound.startDrone(); Sound.startTerminal(); Sound.startMusic(); }
       paintSound();
     });
   }
@@ -1136,6 +1229,7 @@
       active = true;
       Sound.init();
       Sound.startTerminal();
+      Sound.startMusic();
       tick();
     }
     function end() {

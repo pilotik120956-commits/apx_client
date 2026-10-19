@@ -96,8 +96,9 @@
   // Build the shattered-glass pattern: scattered seed points, and the
   // Voronoi cells around them become the shards.
   function buildGlass() {
-    const target = Math.max(14, Math.round((W * H) / 210000));
-    const n = Math.min(46, target);
+    // fewer, larger panes — the glass should read as an accent, not a mesh
+    const target = Math.max(7, Math.round((W * H) / 520000));
+    const n = Math.min(14, target);
     seeds = [];
     for (let i = 0; i < n; i++) {
       seeds.push({
@@ -111,7 +112,7 @@
       y: H * (0.18 + Math.random() * 0.44),
     };
     // radial splinter points around the impact
-    const arms = 16 + ((Math.random() * 10) | 0);
+    const arms = 9 + ((Math.random() * 6) | 0);
     for (let i = 0; i < arms; i++) {
       const a = (i / arms) * Math.PI * 2 + (Math.random() - 0.5) * 0.28;
       const d = 90 + Math.random() * Math.max(W, H) * 0.85;
@@ -140,7 +141,7 @@
         // per-shard scroll state
         off: Math.random() * 1000,
         speed: 0.35 + Math.random() * 0.9,
-        lit: 0.55 + Math.random() * 0.55,
+        lit: 0.22 + Math.random() * 0.26,
         seedX: s.x,
         seedY: s.y,
         // should this shard show columns, logs, or both
@@ -199,9 +200,9 @@
     ctx.closePath();
   }
 
-  const ACCENT = "157,180,230";   // --accent family
-  const BRIGHT = "201,214,240";
-  const SOFT   = "226,233,247";
+  const ACCENT = "110,132,180";   // --accent family, dimmed
+  const BRIGHT = "146,164,206";
+  const SOFT   = "172,188,222";
 
   function drawShardCode(sh, t) {
     // column code across the whole pane — the shard's own clip keeps it inside
@@ -270,7 +271,7 @@
       shardPath(sh.poly);
       ctx.clip();
       // faint glass fill so the shard reads as a pane
-      ctx.fillStyle = "rgba(" + BRIGHT + ",0.030)";
+      ctx.fillStyle = "rgba(" + BRIGHT + ",0.014)";
       ctx.fill();
 
       if (sh.mode === "code") drawShardCode(sh, t);
@@ -284,10 +285,10 @@
     ctx.lineWidth = 1;
     for (const sh of shards) {
       shardPath(sh.poly);
-      ctx.strokeStyle = "rgba(" + BRIGHT + ",0.20)";
+      ctx.strokeStyle = "rgba(" + BRIGHT + ",0.13)";
       ctx.stroke();
       // inner highlight line for a bevelled-glass feel
-      ctx.strokeStyle = "rgba(" + SOFT + ",0.07)";
+      ctx.strokeStyle = "rgba(" + SOFT + ",0.045)";
       ctx.stroke();
     }
 
@@ -307,7 +308,7 @@
     const gx = glint * W;
     const grad = ctx.createLinearGradient(gx - 180, 0, gx + 180, H);
     grad.addColorStop(0, "rgba(" + SOFT + ",0)");
-    grad.addColorStop(0.5, "rgba(" + SOFT + ",0.045)");
+    grad.addColorStop(0.5, "rgba(" + SOFT + ",0.022)");
     grad.addColorStop(1, "rgba(" + SOFT + ",0)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
