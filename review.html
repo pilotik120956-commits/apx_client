@@ -349,6 +349,20 @@
   } else {
     revealEls.forEach(el => el.classList.add('in'));
   }
+
+  /* ---------- keyboard shortcut: T cycles the theme ---------- */
+  document.addEventListener('keydown', event => {
+    if (event.key !== 't' && event.key !== 'T') return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const tag = (event.target && event.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (event.target && event.target.isContentEditable) return;
+    const theme = window.ApxTheme;
+    if (!theme || typeof theme.list !== 'function') return;
+    const ids = theme.list();
+    const i = Math.max(0, ids.indexOf(theme.get()));
+    theme.set(ids[(i + 1) % ids.length]);
+  });
 })();
 </script>
 </body>
