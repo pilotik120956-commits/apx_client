@@ -1542,8 +1542,14 @@
     let onChipResize = null;
     const introTimers = [];
     let skipIntro = null;
+    let skipRequested = false;   // a click that arrives before the intro is armed
     const skipBtn = $('#introSkip');
-    if (skipBtn) skipBtn.addEventListener('click', () => { if (skipIntro) skipIntro(); });
+    if (skipBtn) skipBtn.addEventListener('click', () => {
+      // the intro body is armed inside a requestAnimationFrame, so a very early
+      // click can beat it. Remember the intent and act on it as soon as we can.
+      if (skipIntro) skipIntro();
+      else skipRequested = true;
+    });
 
     function finishIntro() {
       intro.classList.add('is-done');
@@ -1594,6 +1600,9 @@
           if (window.HoleGL) { window.HoleGL.setReveal(0); window.HoleGL.stop(); }
           setTimeout(finishIntro, 60);
         };
+
+        // honour a click that landed before the intro was armed
+        if (skipRequested) { skipIntro(); return; }
 
         // 2) features drift out of the hole, one at a time — calm, unhurried
         after(1350, () => {

@@ -1632,3 +1632,90 @@ html:not(.theme-no-anim) .bg{
 @keyframes skipIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .intro.is-leaving .intro-skip{opacity:0;transition:opacity .3s var(--ease);animation:none;}
 @media (max-width:640px){ .intro-skip{right:14px;bottom:16px;font-size:11.5px;padding:8px 13px;} }
+
+/* ============ extra decor ============ */
+/* ---- 7. drifting data motes ---- */
+.motes{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  opacity:0;transition:opacity 1.2s var(--ease);
+}
+html.intro-ready .motes,.motes.ready{opacity:1;}
+.motes i{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(var(--accent-rgb),.85),rgba(var(--accent-rgb),0) 70%);
+  box-shadow:0 0 8px rgba(var(--accent-rgb),.45);
+  animation:moteDrift linear infinite;
+  will-change:transform;
+}
+@keyframes moteDrift{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  50%{transform:translate3d(14px,-26px,0) scale(1.25);}
+  100%{transform:translate3d(0,0,0) scale(1);}
+}
+
+/* ---- 8. ghost section numerals ---- */
+.sec-num{
+  position:absolute;top:-24px;right:8px;z-index:-1;pointer-events:none;
+  font-family:var(--mono,ui-monospace,monospace);
+  font-size:clamp(90px,15vw,190px);font-weight:800;line-height:1;
+  letter-spacing:-.05em;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(232,240,255,.055);
+  opacity:.9;user-select:none;
+}
+@media (max-width:760px){ .sec-num{font-size:74px;top:-12px;right:2px;} }
+
+/* ---- 9. hero scan sweep ---- */
+.scan-sweep{
+  position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(var(--accent-rgb),0) 42%,
+    rgba(var(--accent-rgb),.10) 50%,
+    rgba(var(--accent-rgb),0) 58%,
+    transparent 100%);
+  mix-blend-mode:screen;
+  animation:scanSweep 7.5s var(--ease) infinite;
+}
+@keyframes scanSweep{
+  0%{transform:translateY(-102%);opacity:0;}
+  12%{opacity:.9;}
+  88%{opacity:.9;}
+  100%{transform:translateY(102%);opacity:0;}
+}
+
+/* ---- 10. status ticker ---- */
+.ticker{
+  position:absolute;left:0;right:0;bottom:6px;z-index:4;
+  overflow:hidden;pointer-events:none;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  opacity:0;animation:tickerIn 1s var(--ease) .6s forwards;
+}
+@keyframes tickerIn{to{opacity:1;}}
+.ticker-track{
+  display:flex;gap:34px;width:max-content;
+  animation:tickerRun 44s linear infinite;
+}
+.ticker-track .tk{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono,ui-monospace,monospace);
+  font-size:10.5px;letter-spacing:.16em;color:var(--muted-2);
+  white-space:nowrap;
+}
+.ticker-track .tk i{
+  width:5px;height:5px;border-radius:50%;flex:0 0 auto;
+  background:var(--accent-soft);box-shadow:0 0 8px rgba(var(--accent-rgb),.7);
+  animation:tkPulse 2.4s ease-in-out infinite;
+}
+.tk:nth-child(2n) i{animation-delay:.6s;}
+.tk:nth-child(3n) i{animation-delay:1.2s;}
+@keyframes tkPulse{0%,100%{opacity:.45;}50%{opacity:1;}}
+@keyframes tickerRun{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (max-width:900px){ .ticker{display:none;} }
+
+@media (prefers-reduced-motion:reduce){
+  .motes{display:none;}
+  .scan-sweep,.ticker-track{animation:none;}
+  .scan-sweep{display:none;}
+}

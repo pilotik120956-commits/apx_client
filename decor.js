@@ -128,6 +128,81 @@
     toggle();
   }
 
+  // ---------- 7. drifting data motes ----------
+  function motes() {
+    if (document.querySelector(".motes")) return;
+    const wrap = document.createElement("div");
+    wrap.className = "motes";
+    wrap.setAttribute("aria-hidden", "true");
+    // a deterministic scatter so the field is stable between reloads
+    let seed = 0x2f6e;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    for (let i = 0; i < 26; i++) {
+      const m = document.createElement("i");
+      m.style.left = (rnd() * 100).toFixed(2) + "%";
+      m.style.top = (rnd() * 100).toFixed(2) + "%";
+      const s = 1 + rnd() * 2.2;
+      m.style.width = s.toFixed(1) + "px";
+      m.style.height = s.toFixed(1) + "px";
+      m.style.animationDelay = (-rnd() * 22).toFixed(1) + "s";
+      m.style.animationDuration = (16 + rnd() * 20).toFixed(1) + "s";
+      m.style.opacity = (0.16 + rnd() * 0.4).toFixed(2);
+      wrap.appendChild(m);
+    }
+    document.body.appendChild(wrap);
+  }
+
+  // ---------- 8. ghost section numerals ----------
+  function numerals() {
+    const map = {
+      features: "01", modules: "02", pricing: "03",
+      review: "04", reviews: "05", faq: "06", start: "07",
+    };
+    document.querySelectorAll(".section").forEach(sec => {
+      const id = sec.id || "";
+      const num = map[id] || null;
+      if (!num || sec.querySelector(".sec-num")) return;
+      sec.style.position = sec.style.position || "relative";
+      const n = document.createElement("span");
+      n.className = "sec-num";
+      n.setAttribute("aria-hidden", "true");
+      n.textContent = num;
+      sec.appendChild(n);
+    });
+  }
+
+  // ---------- 9. hero scan sweep ----------
+  function scan() {
+    const stage = document.querySelector(".hero-stage");
+    if (!stage || stage.querySelector(".scan-sweep")) return;
+    const el = document.createElement("span");
+    el.className = "scan-sweep";
+    el.setAttribute("aria-hidden", "true");
+    stage.appendChild(el);
+  }
+
+  // ---------- 10. status ticker under the hero ----------
+  function ticker() {
+    const hero = document.querySelector(".hero");
+    if (!hero || hero.querySelector(".ticker")) return;
+    const items = [
+      "SHADER · WEBGL RAYTRACER ONLINE",
+      "MODULES · 20+ LOADED",
+      "FABRIC · 1.21.11",
+      "LATENCY · 12 MS",
+      "BUILD · STABLE",
+      "THEME · ADAPTIVE",
+    ];
+    const el = document.createElement("div");
+    el.className = "ticker";
+    el.setAttribute("aria-hidden", "true");
+    const row = items.concat(items)
+      .map(t => '<span class="tk"><i></i>' + t + "</span>")
+      .join("");
+    el.innerHTML = '<div class="ticker-track">' + row + "</div>";
+    hero.appendChild(el);
+  }
+
   function build() {
     ribbons();
     sigils();
@@ -135,6 +210,10 @@
     brackets();
     heroHud();
     toTop();
+    motes();
+    numerals();
+    scan();
+    ticker();
     if (!reduce) document.documentElement.classList.add("decor-anim");
   }
 
