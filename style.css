@@ -1561,3 +1561,22 @@ html:not(.theme-no-anim) .bg{
   .module-search{width:100%;}
   .tabs{justify-content:flex-start;}
 }
+
+/* ---- modal step list ---- */
+.modal-steps{
+  list-style:none;counter-reset:s;
+  display:flex;flex-direction:column;gap:8px;
+  margin:0 0 16px;padding:0;
+}
+.modal-steps li{
+  display:flex;align-items:center;gap:11px;
+  font-size:13px;color:var(--muted);
+}
+.modal-steps li span{
+  flex:0 0 auto;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:11px;font-weight:700;color:var(--accent-soft);
+  background:rgba(var(--accent-rgb),.14);
+  border:1px solid rgba(var(--accent-rgb),.36);
+}
+.modal-steps li b{color:var(--accent-soft);font-weight:600;}

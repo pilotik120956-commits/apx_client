@@ -628,6 +628,11 @@
       <button class="modal-close" type="button" data-close aria-label="Закрити">✕</button>
     </div>
     <p class="modal-sub">Обери спосіб оплати — і ми надішлемо ключ у Telegram. Ціну узгоджуємо індивідуально.</p>
+    <ol class="modal-steps">
+      <li><span>1</span> Обери спосіб оплати нижче</li>
+      <li><span>2</span> Напиши нам у Telegram і заверши оплату</li>
+      <li><span>3</span> Отримай ключ і введи його <b>в самому моді</b></li>
+    </ol>
     <div class="pay-list">
       <button class="pay" type="button" data-pay="USDT / Crypto"><span>USDT / Crypto</span><span>→</span></button>
       <button class="pay" type="button" data-pay="Monobank"><span>Monobank (UAH)</span><span>→</span></button>
@@ -1666,7 +1671,22 @@
   $('#buyPro').addEventListener('click', openModal);
   $$('[data-close]', modal).forEach(el => el.addEventListener('click', closeModal));
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    if (!modal.classList.contains('open')) return;
+    if (event.key === 'Escape') { closeModal(); return; }
+    // keep keyboard focus inside the dialog while it is open
+    if (event.key !== 'Tab') return;
+    const focusables = $$('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modal)
+      .filter(el => !el.disabled && el.offsetParent !== null);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
 
   $$('.pay').forEach(button => button.addEventListener('click', () => {
