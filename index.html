@@ -50,10 +50,63 @@
   <div class="horizon-flash"></div>
 </div>
 
-<!-- ================= black hole intro ================= -->
+<!-- ================= black hole intro (cinematic) ================= -->
 <div class="intro" id="intro" aria-hidden="true">
-  <div class="intro-core" id="introCore"></div>
-  <div class="intro-ring"></div>
+  <div class="intro-void"></div>
+
+  <div class="intro-hud">
+    <div class="intro-badge">
+      <span class="intro-badge-mark">A</span>
+      <span class="intro-badge-name">APX <em>CLIENT</em></span>
+    </div>
+
+    <div class="intro-hole">
+      <div class="intro-disk"></div>
+      <div class="intro-core" id="introCore"></div>
+      <div class="intro-ring"></div>
+      <div class="intro-ring ring-2"></div>
+      <div class="intro-lens"></div>
+    </div>
+
+    <div class="intro-pull" id="introPull">
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-spark"/></svg> Fullbright
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-users"/></svg> VoiceChat
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-bolt"/></svg> Стабільний FPS
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-layers"/></svg> Менеджер модулів
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-target"/></svg> Auto waypoints
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-shield"/></svg> Стабільна робота
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-globe"/></svg> Fabric 1.21.11
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-monitor"/></svg> Плавний інтерфейс
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-telegram"/></svg> Підтримка 24/7
+      </span>
+      <span class="intro-chip" data-feature>
+        <svg class="sicon" width="16" height="16"><use href="#i-grid"/></svg> 20+ модулів
+      </span>
+    </div>
+
+    <div class="intro-scroll">
+      <span>Прокрутка до клієнта</span>
+      <svg class="sicon" width="15" height="15"><use href="#i-chevron"/></svg>
+    </div>
+  </div>
+
   <div class="intro-flash"></div>
 </div>
 
@@ -692,36 +745,93 @@
     }
   });
 
-  /* ---------- black hole intro ---------- */
+  /* ---------- black hole intro (cinematic) ---------- */
   const intro = $('#intro');
   const heroSection = $('.hero');
   if (intro) {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const alreadyPlayed = sessionStorage.getItem('apx_intro') === '1';
+    let alreadyPlayed = false;
+    try { alreadyPlayed = sessionStorage.getItem('apx_intro') === '1'; } catch (e) {}
+
+    const chips = $$('.intro-chip');
+    const FALLBACK = [[-170,-96],[-6,-146],[158,-104],[-196,-8],[186,-6],[-158,88],[-4,132],[150,92],[-190,150],[188,146]];
+
+    function layoutChips() {
+      const R = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+      chips.forEach((chip, i) => {
+        const base = FALLBACK[i % FALLBACK.length];
+        const len = Math.hypot(base[0], base[1]) || 1;
+        const dx = base[0] / len * R;
+        const dy = base[1] / len * R;
+        chip.style.setProperty('--dx', dx.toFixed(1) + 'px');
+        chip.style.setProperty('--dy', dy.toFixed(1) + 'px');
+        chip.style.animationDelay = (i * 150) + 'ms';
+      });
+      // staggered emergence of the page chrome once the view is pulled in
+      $$('.intro-item').forEach(el => {
+        const order = Number(el.style.getPropertyValue('--io')) || 0;
+        el.style.animationDelay = (order * 80) + 'ms';
+      });
+    }
+    layoutChips();
+
+    function spawnBurst() {
+      // quick particles shooting out of the hole, each in its own direction
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      for (let i = 0; i < 26; i++) {
+        const el = document.createElement('span');
+        el.className = 'intro-spark';
+        const ang = Math.random() * Math.PI * 2;
+        const dist = 120 + Math.random() * 260;
+        el.style.left = cx + 'px';
+        el.style.top = cy + 'px';
+        el.style.setProperty('--sx', (Math.cos(ang) * dist).toFixed(1) + 'px');
+        el.style.setProperty('--sy', (Math.sin(ang) * dist).toFixed(1) + 'px');
+        el.style.animationDelay = (Math.random() * 260).toFixed(0) + 'ms';
+        intro.appendChild(el);
+        setTimeout(() => el.remove(), 1800);
+      }
+    }
+
+    function finishIntro() {
+      intro.classList.add('is-done');
+      document.documentElement.classList.remove('intro-lock', 'intro-play');
+      if (heroSection) heroSection.classList.add('in');
+      $$('.intro-item').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none'; });
+    }
 
     if (!reduced && !alreadyPlayed) {
-      document.documentElement.classList.add('intro-lock');
       try { sessionStorage.setItem('apx_intro', '1'); } catch (e) {}
+      document.documentElement.classList.add('intro-lock');
+      layoutChips();
 
       requestAnimationFrame(() => {
-        intro.classList.add('is-armed');
+        // 1) the black hole ignites and swallows the screen
+        intro.classList.add('is-arming');
+
+        // 2) features burst out of the hole, one after another
         setTimeout(() => {
-          intro.classList.add('is-open', 'is-filling');
-        }, 420);
-        setTimeout(() => intro.classList.add('is-done'), 1750);
+          intro.classList.add('is-releasing', 'is-void-out');
+          spawnBurst();
+          intro.classList.remove('is-arming');
+        }, 1150);
+
+        // 3) the whole view is pulled/dragged toward the main content
         setTimeout(() => {
+          intro.classList.add('is-scrolling');
+          document.documentElement.classList.add('intro-play');
           document.documentElement.classList.remove('intro-lock');
-          if (heroSection) heroSection.classList.add('in');
-        }, 1900);
+          window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+          document.body.classList.add('intro-glide');
+          intro.classList.add('is-leaving');
+          setTimeout(() => {
+            document.body.classList.remove('intro-glide');
+            finishIntro();
+          }, 900);
+        }, 3050);
       });
     } else {
-      intro.classList.add('is-done');
-      $$('.intro-item').forEach(el => {
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-        el.style.filter = 'none';
-        el.style.animation = 'none';
-      });
+      finishIntro();
     }
   }
 

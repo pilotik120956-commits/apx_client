@@ -73,52 +73,153 @@ button{background:none;border:0;cursor:pointer;}
 }
 .stars{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.9;}
 
-/* ============ black hole intro ============ */
+/* ============ black hole intro (cinematic) ============ */
 .intro{
   position:fixed;inset:0;z-index:900;pointer-events:none;
+  display:grid;place-items:center;overflow:hidden;
+}
+.intro-void{
+  position:absolute;inset:0;background:#000;opacity:1;
+  transition:opacity .9s var(--ease);
+}
+.intro.is-void-out .intro-void{opacity:0;}
+
+.intro-hud{
+  position:relative;width:100%;height:100%;
   display:grid;place-items:center;
 }
-.intro::before{
-  content:"";position:absolute;inset:0;background:#000;
-  opacity:0;transition:opacity .42s var(--ease);
+
+/* ---- the hole itself ---- */
+.intro-hole{
+  position:relative;display:grid;place-items:center;
+  width:0;height:0;
 }
-.intro.is-armed::before{opacity:1;}
-.intro.is-open::before{opacity:0;}
 .intro-core{
-  position:relative;width:14px;height:14px;border-radius:50%;
-  background:#000;
-  box-shadow:0 0 0 1px rgba(232,240,255,.5),0 0 40px 6px rgba(150,190,255,.35);
-  transform:scale(.001);opacity:0;
+  position:absolute;width:16px;height:16px;border-radius:50%;background:#000;
+  box-shadow:0 0 0 1px rgba(232,240,255,.55),0 0 60px 10px rgba(150,190,255,.4),0 0 140px 30px rgba(90,140,230,.22);
+  transform:scale(.02);opacity:0;
 }
-.intro.is-armed .intro-core{opacity:1;transform:scale(1);}
-.intro.is-open .intro-core{
-  opacity:0;transform:scale(1);
-  transition:transform .85s cubic-bezier(.3,0,.2,1),opacity .5s ease .42s;
+.intro.is-arming .intro-core{animation:coreGrow 1.05s cubic-bezier(.2,.8,.2,1) forwards;}
+@keyframes coreGrow{
+  0%{transform:scale(.02);opacity:0;}
+  40%{opacity:1;}
+  100%{transform:scale(1);opacity:1;}
 }
+/* accretion disk */
+.intro-disk{
+  position:absolute;width:280px;height:280px;border-radius:50%;
+  opacity:0;transform:rotate(-22deg) scaleX(.34);
+  background:conic-gradient(from 0deg,
+    rgba(120,170,255,0), rgba(150,195,255,.5), rgba(255,255,255,.85),
+    rgba(150,195,255,.5), rgba(120,170,255,0), rgba(255,255,255,.6),
+    rgba(120,170,255,0));
+  filter:blur(10px);
+  mask-image:radial-gradient(circle,transparent 34%,#000 46%,#000 68%,transparent 78%);
+  -webkit-mask-image:radial-gradient(circle,transparent 34%,#000 46%,#000 68%,transparent 78%);
+}
+.intro.is-arming .intro-disk{animation:diskIn 1.3s ease-out .12s forwards;}
+@keyframes diskIn{
+  from{opacity:0;transform:rotate(-22deg) scaleX(.34) scale(.5);}
+  to{opacity:.95;transform:rotate(-22deg) scaleX(.34) scale(1);}
+}
+.intro.is-releasing .intro-disk{animation:diskSpin 6s linear .2s infinite;}
+@keyframes diskSpin{
+  from{transform:rotate(-22deg) scaleX(.34) scale(1.05);}
+  to{transform:rotate(338deg) scaleX(.34) scale(1.05);}
+}
+/* gravitational lensing halo */
+.intro-lens{
+  position:absolute;width:210px;height:210px;border-radius:50%;opacity:0;
+  box-shadow:inset 0 0 40px 8px rgba(190,215,255,.28),0 0 90px 20px rgba(120,165,235,.2);
+  border:1px solid rgba(220,236,255,.18);
+}
+.intro.is-arming .intro-lens{animation:lensIn 1.2s ease-out .3s forwards;}
+@keyframes lensIn{from{opacity:0;transform:scale(.6);}to{opacity:1;transform:scale(1);}}
+
 .intro-ring{
-  position:absolute;width:16px;height:16px;border-radius:50%;
-  border:1.5px solid rgba(220,235,255,.85);opacity:0;
+  position:absolute;width:20px;height:20px;border-radius:50%;
+  border:1.5px solid rgba(224,238,255,.85);opacity:0;
 }
-.intro.is-open .intro-ring{
-  opacity:1;
-  animation:holeRing 1.25s cubic-bezier(.16,.68,.24,1) forwards;
-}
+.intro.is-arming .intro-ring{animation:holeRing 1.5s cubic-bezier(.16,.68,.24,1) .25s forwards;}
+.intro.is-arming .intro-ring.ring-2{animation-delay:.5s;}
 @keyframes holeRing{
-  0%{transform:scale(1);opacity:.9;}
-  70%{opacity:.28;}
-  100%{transform:scale(120);opacity:0;}
+  0%{transform:scale(1);opacity:.85;}
+  70%{opacity:.22;}
+  100%{transform:scale(140);opacity:0;}
 }
-.intro-flash{
-  position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(190,215,255,.55),transparent 62%);
+
+/* ---- badge above the hole ---- */
+.intro-badge{
+  position:absolute;top:16%;left:50%;transform:translate(-50%, -14px);
+  display:flex;align-items:center;gap:11px;opacity:0;
+}
+.intro.is-arming .intro-badge{animation:badgeIn .9s var(--ease) .55s forwards;}
+@keyframes badgeIn{
+  from{opacity:0;transform:translate(-50%,-14px) scale(.9);filter:blur(6px);}
+  to{opacity:1;transform:translate(-50%,0) scale(1);filter:blur(0);}
+}
+.intro-badge-mark{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  font-weight:700;font-size:18px;color:#0a0f1e;
+  background:linear-gradient(145deg,#eef2fb,#9db4e6 58%,#1c2542);
+  box-shadow:0 8px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.6);
+}
+.intro-badge-name{font-size:20px;font-weight:600;letter-spacing:.01em;}
+.intro-badge-name em{font-style:normal;color:var(--accent-bright);}
+
+/* ---- features flying out of the hole ---- */
+.intro-pull{
+  position:absolute;inset:0;pointer-events:none;
+}
+.intro-chip{
+  position:absolute;left:50%;top:50%;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 16px;border-radius:14px;white-space:nowrap;
+  font-size:13.5px;font-weight:600;color:var(--text);
+  border:1px solid rgba(232,240,255,.2);
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:0 16px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.22);
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.4);
+  will-change:transform,opacity,filter;
+}
+.intro-chip .sicon{color:var(--accent-bright);}
+.intro.is-releasing .intro-chip{
+  animation:chipFly 1.15s cubic-bezier(.14,.86,.24,1) forwards;
+}
+@keyframes chipFly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.35);filter:blur(10px);}
+  22%{opacity:1;filter:blur(0);}
+  100%{opacity:1;transform:translate(calc(-50% + var(--dx,0px)), calc(-50% + var(--dy,0px))) scale(1);}
+}
+
+/* ---- scroll hint ---- */
+.intro-scroll{
+  position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
   opacity:0;
 }
-.intro.is-open .intro-flash{animation:holeFlash .9s ease-out forwards;}
-@keyframes holeFlash{
-  0%{opacity:0;transform:scale(.06);}
-  35%{opacity:.5;}
-  100%{opacity:0;transform:scale(1.4);}
+.intro.is-releasing .intro-scroll{animation:badgeIn .8s var(--ease) 1.5s forwards;}
+.intro-scroll .sicon{transform:rotate(90deg);animation:scrollNudge 1.6s var(--ease) infinite;}
+@keyframes scrollNudge{
+  0%,100%{transform:translateX(0) rotate(90deg);}
+  50%{transform:translateX(5px) rotate(90deg);}
 }
 .intro.is-done{display:none;}
+
+.intro-flash{
+  position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(190,215,255,.55),transparent 60%);
+  opacity:0;
+}
+.intro.is-arming .intro-flash{animation:holeFlash 1s ease-out .15s forwards;}
+@keyframes holeFlash{
+  0%{opacity:0;transform:scale(.06);}
+  30%{opacity:.42;}
+  100%{opacity:0;transform:scale(1.5);}
+}
 
 /* ============ event horizon portal (page / section travel) ============ */
 .horizon{
@@ -186,13 +287,38 @@ body.is-arriving{animation:emergedFromHole .78s cubic-bezier(.16,.84,.24,1) both
 
 /* elements that emerge from the hole */
 .intro-item{opacity:0;transform:translateY(14px) scale(.94);}
-.intro.is-filling .intro-item{
-  animation:emerge .78s cubic-bezier(.16,.84,.24,1) forwards;
-  animation-delay:calc(.42s + var(--io,0) * 90ms);
+html.intro-play .intro-item{
+  animation:emerge .82s cubic-bezier(.16,.84,.24,1) forwards;
 }
 @keyframes emerge{
-  from{opacity:0;transform:translateY(22px) scale(.9);filter:blur(8px);}
+  from{opacity:0;transform:translateY(24px) scale(.9);filter:blur(8px);}
   to{opacity:1;transform:none;filter:blur(0);}
+}
+
+/* burst particles flying out of the hole */
+.intro-spark{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:radial-gradient(circle,#fff,rgba(190,215,255,.5) 55%,transparent 72%);
+  transform:translate(-50%,-50%);
+  animation:sparkFly 1.25s cubic-bezier(.12,.8,.3,1) forwards;
+}
+@keyframes sparkFly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.2);}
+  15%{opacity:1;}
+  100%{opacity:0;transform:translate(calc(-50% + var(--sx,0px)), calc(-50% + var(--sy,0px))) scale(.4);}
+}
+
+/* the view is pulled down toward the main content */
+body.intro-glide{transition:transform .9s var(--ease),filter .9s ease,opacity .9s ease;}
+.intro.is-leaving{animation:introLeave .9s var(--ease) forwards;}
+@keyframes introLeave{
+  0%{opacity:1;}
+  100%{opacity:0;}
+}
+.intro.is-leaving .intro-hud{animation:hudPull .9s var(--ease) forwards;}
+@keyframes hudPull{
+  0%{transform:translateY(0) scale(1);opacity:1;filter:blur(0);}
+  100%{transform:translateY(-70px) scale(1.22);opacity:0;filter:blur(12px);}
 }
 
 /* ============ glass ============ */
