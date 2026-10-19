@@ -153,6 +153,8 @@
       <span>Прокрутка до клієнта</span>
       <svg class="sicon" width="15" height="15"><use href="#i-chevron"/></svg>
     </div>
+
+    <button class="intro-skip" id="introSkip" type="button">Пропустити</button>
   </div>
 
   <div class="intro-flash"></div>
@@ -1538,6 +1540,10 @@
     }
 
     let onChipResize = null;
+    const introTimers = [];
+    let skipIntro = null;
+    const skipBtn = $('#introSkip');
+    if (skipBtn) skipBtn.addEventListener('click', () => { if (skipIntro) skipIntro(); });
 
     function finishIntro() {
       intro.classList.add('is-done');
@@ -1569,8 +1575,28 @@
           Sound.playForming(1.2);
         }
 
+        // all intro timers are registered so "Пропустити" can cut straight to the page
+        function after(ms, fn) {
+          const id = setTimeout(fn, ms);
+          introTimers.push(id);
+          return id;
+        }
+        function clearIntroTimers() {
+          introTimers.forEach(clearTimeout);
+          introTimers.length = 0;
+        }
+        skipIntro = function () {
+          clearIntroTimers();
+          document.body.classList.remove('intro-glide');
+          document.documentElement.classList.remove('intro-lock');
+          document.documentElement.classList.add('intro-play');
+          intro.classList.add('is-leaving');
+          if (window.HoleGL) { window.HoleGL.setReveal(0); window.HoleGL.stop(); }
+          setTimeout(finishIntro, 60);
+        };
+
         // 2) features drift out of the hole, one at a time — calm, unhurried
-        setTimeout(() => {
+        after(1350, () => {
           intro.classList.add('is-releasing', 'is-void-out');
           spawnBurst();
           intro.classList.remove('is-arming');
@@ -1580,10 +1606,10 @@
             Sound.startTerminal();
           }
           scheduleFeatureSounds();
-        }, 1350);
+        });
 
         // 3) the whole view is pulled/dragged toward the main content
-        setTimeout(() => {
+        after(4200, () => {
           intro.classList.add('is-scrolling');
           document.documentElement.classList.add('intro-play');
           document.documentElement.classList.remove('intro-lock');
@@ -1591,12 +1617,12 @@
           document.body.classList.add('intro-glide');
           intro.classList.add('is-leaving');
           if (window.HoleGL) window.HoleGL.setReveal(0);
-          setTimeout(() => {
+          after(1300, () => {
             document.body.classList.remove('intro-glide');
             finishIntro();
             if (window.HoleGL) window.HoleGL.stop();
-          }, 1300);
-        }, 4200);
+          });
+        });
       });
     } else {
       finishIntro();
